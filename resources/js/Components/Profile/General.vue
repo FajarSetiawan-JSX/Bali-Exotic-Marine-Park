@@ -2,13 +2,18 @@
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
+import { usePage } from '@inertiajs/vue3';
+import { eror, succes } from '@/Helper/Toast';
+const user = usePage().props.auth?.user;
 
 const loading = ref(false);
 const form = ref({
     first_name: '',
     last_name: '',
     middle_name: '',
+    email: '',
     phone: '',
     gender: '',
     date_of_birth: '',
@@ -18,15 +23,28 @@ const errors = ref({})
 const submit = async () => {
     try {
         loading.value = true;
-        const response = await axios.patch('/api/profile/update', form.value);
+        const response = await axios.patch(`/api/profile/update/${user.id}`, form.value);
+        succes('Success!', 'Your profile updated')
     } catch (error) {
         if(error?.response?.status == 422){
             errors.value = error?.response?.data?.errors
+        }else{
+            eror('Error!', error?.response?.data?.message);
         }
     }finally {
         loading.value = false;
     }
 }
+onMounted(()=>{
+    form.value.first_name = user.first_name
+    form.value.last_name = user.last_name;
+    form.value.middle_name = user.middle_name;
+    form.value.email = user.email;
+    form.value.phone = user.phone;
+    form.value.gender = user.gender;
+    form.value.address = user.address;
+    form.value.date_of_birth = user.birthday;
+})
 </script>
 
 <template>
@@ -109,7 +127,7 @@ const submit = async () => {
                     <TextInput
                         type="email"
                         class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                        v-model="form.middle_name"
+                        v-model="form.email"
                         autocomplete="email"
                         placeholder="Enter your email address"
                     />

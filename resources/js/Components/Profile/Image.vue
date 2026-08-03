@@ -7,7 +7,7 @@ import CircularLoading from '../CircularLoading.vue';
 import Swal from 'sweetalert2';
 import { succes, eror } from '@/Helper/Toast.js';
 
-const user = ref({});
+const user = usePage().props.auth?.user;
 const loading = ref(false);
 const progress = ref(0);
 const uploadPhoto = async (e) => {
@@ -16,7 +16,7 @@ const uploadPhoto = async (e) => {
         const file = e.target.files[0];
         const form = new FormData();
         form.append('profile', file);
-        await axios.patch('/api/profile/image', form, {
+        await axios.post('/api/profile/image', form, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
@@ -31,7 +31,7 @@ const uploadPhoto = async (e) => {
     }catch(error){
         Swal.fire({
             title: 'Error!',
-            text: 'Do you want to continue',
+            text: error?.response?.data?.message,
             icon: 'error',
             confirmButtonText: 'Try again!'
         })
@@ -40,9 +40,6 @@ const uploadPhoto = async (e) => {
         progress.value = 0;
     }
 }
-onMounted(()=>{
-    user.value = usePage().props?.auth?.user;
-});
 </script>
 
 <template>

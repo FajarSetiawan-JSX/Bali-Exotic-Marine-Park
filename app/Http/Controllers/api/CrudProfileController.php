@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Validator;
 
 class CrudProfileController extends Controller
 {
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $valid = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'nullable|string|max:255',
+            'email' => 'required|unique:users,email,' . $id,
             'gender' => 'nullable|string|in:male,female',
             'middle_name' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',
@@ -31,7 +32,8 @@ class CrudProfileController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        User::where('id', $user->id)->update([
+        $user = User::where('id', '=', $id)->first();
+        $user->update([
             'first_name' => $valid['first_name'],
             'last_name' => $valid['last_name'],
             'middle_name' => $valid['middle_name'],
@@ -43,8 +45,18 @@ class CrudProfileController extends Controller
         return response()->json(['message' => 'succes']);
     }
 
-    public function image()
+    public function image(Request $request)
     {
+        $valid = Validator::make($request->all(),[
+            'profile' => 'required|image|mimes:png,jpg|max:1024'
+        ],[
+            'required' => 'Please select a profile image',
+            'image' => 'File must be an image',
+            'mimes' => 'Only png or jpg file are allowed',
+            'max' => 'File is too large.'
+        ])->validate();
+        
+        dd($request->all());
         return response()->json(['message' => 'success']);
     }
 }

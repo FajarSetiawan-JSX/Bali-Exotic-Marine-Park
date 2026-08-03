@@ -10,7 +10,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 const pinia = createPinia();
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Bali Exotic Marine Park';
 window.axios = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;

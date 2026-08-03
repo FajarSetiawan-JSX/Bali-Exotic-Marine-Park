@@ -1,8 +1,19 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 
+defineProps({
+    href: {
+        type: String,
+        required: true,
+    },
+    class: {
+        type: String,
+        required: true,
+    },
+});
 </script>
 <template>
-    <button type="button" class="py-2 px-3 w-full rounded-lg flex items-center overflow-hidden gap-x-2 font-second">
+    <Link :href="href" type="button" :class="class">
         <slot />
-    </button>
+    </Link>
 </template>

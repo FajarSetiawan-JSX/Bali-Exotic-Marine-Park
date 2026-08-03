@@ -34,12 +34,10 @@ class HandleInertiaRequests extends Middleware
         $user = Auth::user();
         $dashboardroute = null;
         if ($user) {
-            $dashboardroute = match ($user->division->slug) {
-                'super-admin' => 'super.admin.dashboard',
-                'supervisor' => '',
-                'reservation' => '',
-                'kitchen' => '',
-                'host' => '',
+            $dashboardroute = match ($user->division->level->level) {
+                1 => 'super.admin.dashboard',
+                2 => 'supervisor.dashboard',
+                3 => '',
                 'default' => 'default.dashboard',
             };
         }

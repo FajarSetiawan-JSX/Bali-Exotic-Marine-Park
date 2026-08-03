@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('divisions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('level_id')->constrained(
-                table: 'priorities',
-                indexName: 'division_priority_id'
+                table: 'levels',
+                indexName: 'divisions_level_id'
             );
             $table->string('name')->unique();
             $table->string('slug');
             $table->string('description')->nullable();
-            $table->string('hexa')->nullable()->unique();
             $table->timestamps();
         });
     }

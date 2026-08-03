@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Layouts/Admin/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
-import { onMounted, ref, computed, nextTick, watch, onUnmounted } from 'vue';
+import { onMounted, ref, computed, watch, onUnmounted } from 'vue';
 import { clearfloor } from '@/Helper/ClearComa';
 import Search from '@/Components/Search.vue';
 import vSelect from 'vue-select';
@@ -14,6 +14,11 @@ import axios from 'axios';
 import NoData from '@/Components/NoData.vue';
 import { eror } from '@/Helper/Toast';
 import DeleteData from '@/Components/DeleteData.vue';
+import Create from '@/Components/Layout/Admin/Users/Create.vue';
+import SearchAnimation from '@/Components/SearchAnimation.vue';
+import { User, ArrowLeft } from 'lucide-vue-next'
+import CardUser from '@/Components/CardUser.vue';
+import PaginationNumber from '@/Components/PaginationNumber.vue';
 
 const props = defineProps(['divisions', 'users', 'online']);
 const filterdivision = ref('');
@@ -21,9 +26,9 @@ const search = ref('');
 const datas = ref({});
 const loading = ref(false);
 const pagination = ref({});
-const header = 'Users';
 const users = ref(0);
 const result = ref(0);
+const modalcreate = ref(false);
 const persen = computed(()=>{
     let persen = (props.online/props.users) * 100;
     return clearfloor(persen);
@@ -154,168 +159,179 @@ onUnmounted(()=>{
 
 <template>
     <Head title="User" />
-
     <AuthenticatedLayout>
-        <Header :text="header" />
-        <section class="p-5 my-3.5">
-            <header class="flex justify-between lg:mx-12">
-                <div class="max-w-max">
-                    <h3 class="text-slate-400 text-sm font-second">Master <span class="text-thrid-admin">> Management User</span></h3>
-                    <h4 class="text-black font-semibold font-second my-1.5 text-xl">Directory overview</h4>
-                    <h5 class="text-slate-700 text-sm font-second">Manage organization structure and individual access levels.</h5>
-                </div>
-                <div class="max-w-max">
-                    <button type="button" class="flex items-center justify-center text-white bg-thrid-admin hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 gap-x-1.5">
-                         <svg class="fill-current" width="15px" height="18px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <g id="style=stroke">
-                                <g id="profile">
-                                    <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C9.92893 2.75 8.25 4.42893 8.25 6.5C8.25 8.57107 9.92893 10.25 12 10.25C14.0711 10.25 15.75 8.57107 15.75 6.5C15.75 4.42893 14.0711 2.75 12 2.75ZM6.75 6.5C6.75 3.6005 9.1005 1.25 12 1.25C14.8995 1.25 17.25 3.6005 17.25 6.5C17.25 9.3995 14.8995 11.75 12 11.75C9.1005 11.75 6.75 9.3995 6.75 6.5Z"/>
-                                    <path id="rec (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M4.25 18.5714C4.25 15.6325 6.63249 13.25 9.57143 13.25H14.4286C17.3675 13.25 19.75 15.6325 19.75 18.5714C19.75 20.8792 17.8792 22.75 15.5714 22.75H8.42857C6.12081 22.75 4.25 20.8792 4.25 18.5714ZM9.57143 14.75C7.46091 14.75 5.75 16.4609 5.75 18.5714C5.75 20.0508 6.94924 21.25 8.42857 21.25H15.5714C17.0508 21.25 18.25 20.0508 18.25 18.5714C18.25 16.4609 16.5391 14.75 14.4286 14.75H9.57143Z"/>
-                                </g>
-                            </g>
-                        </svg>
-                        <p>
-                            Add new user
-                        </p>
-                    </button>
-                </div>
-            </header>
+        <template #header>
+            <h1 class="font-semibold">Users</h1>
+        </template>
+        <template #search>
+            <SearchAnimation placeholder="Search name">
+                <template #search>
+                    <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 17L22 22M19.5 10.75C19.5 15.5825 15.5825 19.5 10.75 19.5C5.91751 19.5 2 15.5825 2 10.75C2 5.91751 5.91751 2 10.75 2C15.5825 2 19.5 5.91751 19.5 10.75Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </template>
 
-            <main class="lg:mx-12 flex flex-col md:flex-row py-2.5 gap-3.5">
-                <div class="bg-white flex inset-0 content-center rounded-lg shadow-lg p-5 w-full md:w-1/2 lg:w-2/3">
-                    <Doughnut :data="chartData" :options="chartOption" />
-                </div>
-                <div class="flex w-full md:w-1/2 lg:w-1/3 justify-end">
-                    <div class="w-full rounded-lg shadow-lg bg-white p-5 md:max-h-max xl:max-w-1/2">
-                        <div class="text-slate-600 flex items-center gap-x-2.5">
-                            <svg class="fill-current" width="20px" height="20px" viewBox="0 0 64 64" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><path class="cls-1" d="M43.62,35H37.16a2,2,0,0,1,0-4h1.63l-14-14a2,2,0,0,1,2.82-2.83L45,31.56A2,2,0,0,1,43.62,35Z"/><path class="cls-1" d="M43.62,35a2,2,0,0,1-2-2V26.3a2,2,0,0,1,4,0V33A2,2,0,0,1,43.62,35Z"/><path class="cls-1" d="M37.84,50.49a2,2,0,0,1-1.41-.59L19,32.44A2,2,0,0,1,20.38,29h6.46a2,2,0,1,1,0,4H25.21l14,14a2,2,0,0,1-1.41,3.42Z"/><path class="cls-1" d="M20.38,39.7a2,2,0,0,1-2-2V31a2,2,0,0,1,4,0V37.7A2,2,0,0,1,20.38,39.7Z"/><path class="cls-2" d="M32,60.21A28.21,28.21,0,1,1,60.21,32a2,2,0,0,1-4,0,24.2,24.2,0,1,0-1.83,9.24,2,2,0,0,1,3.69,1.53A28.12,28.12,0,0,1,32,60.21Z"/></svg>
-                            <p class="font-second">Active users</p>
-                        </div>
-                        <div class="py-3">
-                            <h1 class="text-2xl font-bold font-second">{{ online }} <span class="font-normal">/ {{ users }}</span></h1>
-                            <div class="w-full bg-fifth-admin rounded-lg overflow-hidden">
-                                <div class="h-2 bg-thrid-admin" :style="{width: result + '%'}" />
-                            </div>
+                <template #back>
+                    <ArrowLeft :size="18"/>
+                </template>
+            </SearchAnimation>
+        </template>
+        <header class="flex justify-between lg:mx-12">
+            <div class="max-w-max">
+                <h3 class="text-slate-400 text-sm font-second">Master <span class="text-thrid-admin">> Management User</span></h3>
+                <h4 class="text-black font-semibold font-second my-1.5 text-xl">Directory overview</h4>
+                <h5 class="text-slate-700 text-sm font-second">Manage organization structure and individual access levels.</h5>
+            </div>
+            <div class="max-w-max">
+                <button type="button" @click="modalcreate = true" class="flex items-center justify-center text-white bg-thrid-admin hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 gap-x-1.5">
+                        <svg class="fill-current" width="15px" height="18px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <g id="style=stroke">
+                            <g id="profile">
+                                <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M12 2.75C9.92893 2.75 8.25 4.42893 8.25 6.5C8.25 8.57107 9.92893 10.25 12 10.25C14.0711 10.25 15.75 8.57107 15.75 6.5C15.75 4.42893 14.0711 2.75 12 2.75ZM6.75 6.5C6.75 3.6005 9.1005 1.25 12 1.25C14.8995 1.25 17.25 3.6005 17.25 6.5C17.25 9.3995 14.8995 11.75 12 11.75C9.1005 11.75 6.75 9.3995 6.75 6.5Z"/>
+                                <path id="rec (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M4.25 18.5714C4.25 15.6325 6.63249 13.25 9.57143 13.25H14.4286C17.3675 13.25 19.75 15.6325 19.75 18.5714C19.75 20.8792 17.8792 22.75 15.5714 22.75H8.42857C6.12081 22.75 4.25 20.8792 4.25 18.5714ZM9.57143 14.75C7.46091 14.75 5.75 16.4609 5.75 18.5714C5.75 20.0508 6.94924 21.25 8.42857 21.25H15.5714C17.0508 21.25 18.25 20.0508 18.25 18.5714C18.25 16.4609 16.5391 14.75 14.4286 14.75H9.57143Z"/>
+                            </g>
+                        </g>
+                    </svg>
+                    <p>
+                        Add new user
+                    </p>
+                </button>
+            </div>
+        </header>
+
+        <main class="lg:mx-12 flex flex-col md:flex-row py-2.5 gap-3.5">
+            <div class="bg-white flex inset-0 content-center rounded-lg shadow-lg p-5 w-full md:w-1/2 lg:w-2/3">
+                <Doughnut :data="chartData" :options="chartOption" />
+            </div>
+            <div class="flex w-full md:w-1/2 lg:w-1/3 justify-end">
+                <div class="w-full rounded-lg shadow-lg bg-white p-5 md:max-h-max xl:max-w-1/2">
+                    <div class="text-slate-600 flex items-center gap-x-2.5">
+                        <svg class="fill-current" width="20px" height="20px" viewBox="0 0 64 64" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><path class="cls-1" d="M43.62,35H37.16a2,2,0,0,1,0-4h1.63l-14-14a2,2,0,0,1,2.82-2.83L45,31.56A2,2,0,0,1,43.62,35Z"/><path class="cls-1" d="M43.62,35a2,2,0,0,1-2-2V26.3a2,2,0,0,1,4,0V33A2,2,0,0,1,43.62,35Z"/><path class="cls-1" d="M37.84,50.49a2,2,0,0,1-1.41-.59L19,32.44A2,2,0,0,1,20.38,29h6.46a2,2,0,1,1,0,4H25.21l14,14a2,2,0,0,1-1.41,3.42Z"/><path class="cls-1" d="M20.38,39.7a2,2,0,0,1-2-2V31a2,2,0,0,1,4,0V37.7A2,2,0,0,1,20.38,39.7Z"/><path class="cls-2" d="M32,60.21A28.21,28.21,0,1,1,60.21,32a2,2,0,0,1-4,0,24.2,24.2,0,1,0-1.83,9.24,2,2,0,0,1,3.69,1.53A28.12,28.12,0,0,1,32,60.21Z"/></svg>
+                        <p class="font-second">Active users</p>
+                    </div>
+                    <div class="py-3">
+                        <h1 class="text-2xl font-bold font-second">{{ online }} <span class="font-normal">/ {{ users }}</span></h1>
+                        <div class="w-full bg-fifth-admin rounded-lg overflow-hidden">
+                            <div class="h-2 bg-thrid-admin" :style="{width: result + '%'}" />
                         </div>
                     </div>
                 </div>
-            </main>
-
-            <Search :placeholder="'Search name'" @searching="handlesearching">
-                <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
-            </Search>
-
-            <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
-                <div class="bg-white relative overflow-x-auto shadow-md sm:rounded-lg outline-1 outline-slate-200">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-primary-admin">
-                            <tr>
-                                <th scope="col" class="px-4 py-4" colspan="2">User profile</th>
-                                <th scope="col" class="px-4 py-3">Division</th>
-                                <th scope="col" class="px-4 py-3">Priority</th>
-                                <th scope="col" class="px-4 py-3">Date of join</th>
-                                <th scope="col" class="px-4 py-3">Status</th>
-                                <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody v-if="!loading">
-                            <template v-if="datas.length > 0">
-                                <tr v-for="(data, index) in datas" :key="index" class="border-b">
-                                    <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap"><img :src="data.pict ? `` : `https://ui-avatars.com/api/?name=${data?.name}&background=7DD3FC&color=fff`" :alt="data.name" class="w-16 h-16 rounded-full ring-1 ring-gray-200"></th>
-                                    <td class="px-4 py-3">{{ data.name }}</td>
-                                    <td class="px-4 py-3">{{ data.division }}</td>
-                                    <td class="px-4 py-3 font-second font-bold" :class="data.level == 1 ? 'text-red-500' : data.level == 2 ? 'text-green-500' : 'text-blue-500'">{{ data.level }}</td>
-                                    <td class="px-4 py-3 max-w-[12rem] truncate">What is a product description? A product description describes a product.</td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center gap-x-2.5">
-                                            <div class="w-3 h-3 rounded-full" :class="data.status ? 'bg-thrid-admin' : 'bg-second-admin'" />
-                                            <span>{{ data.status ? 'Active' : 'Offline' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 flex items-center justify-end">
-                                        <div class="relative flex justify-end">
-                                            <button @click.stop="action = index" class="inline-flex items-center text-sm font-medium hover:bg-gray-100 p-1.5 text-center text-gray-500 rounded-lg focus:outline-none" type="button">
-                                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                                </svg>
-                                            </button>
-                                            <div v-if="action === index" class="absolute top-10 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow">
-                                                <ul class="py-1 text-sm">
-                                                    <li>
-                                                        <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-gray-700">
-                                                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                                                            </svg>
-                                                            Edit
-                                                        </button>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-gray-700">
-                                                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" />
-                                                            </svg>
-                                                            Preview
-                                                        </button>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-red-500">
-                                                            <svg class="w-4 h-4 mr-4" viewbox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                                <path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M6.09922 0.300781C5.93212 0.30087 5.76835 0.347476 5.62625 0.435378C5.48414 0.523281 5.36931 0.649009 5.29462 0.798481L4.64302 2.10078H1.59922C1.36052 2.10078 1.13161 2.1956 0.962823 2.36439C0.79404 2.53317 0.699219 2.76209 0.699219 3.00078C0.699219 3.23948 0.79404 3.46839 0.962823 3.63718C1.13161 3.80596 1.36052 3.90078 1.59922 3.90078V12.9008C1.59922 13.3782 1.78886 13.836 2.12643 14.1736C2.46399 14.5111 2.92183 14.7008 3.39922 14.7008H10.5992C11.0766 14.7008 11.5344 14.5111 11.872 14.1736C12.2096 13.836 12.3992 13.3782 12.3992 12.9008V3.90078C12.6379 3.90078 12.8668 3.80596 13.0356 3.63718C13.2044 3.46839 13.2992 3.23948 13.2992 3.00078C13.2992 2.76209 13.2044 2.53317 13.0356 2.36439C12.8668 2.1956 12.6379 2.10078 12.3992 2.10078H9.35542L8.70382 0.798481C8.62913 0.649009 8.5143 0.523281 8.37219 0.435378C8.23009 0.347476 8.06631 0.30087 7.89922 0.300781H6.09922ZM4.29922 5.70078C4.29922 5.46209 4.39404 5.23317 4.56282 5.06439C4.73161 4.8956 4.96052 4.80078 5.19922 4.80078C5.43791 4.80078 5.66683 4.8956 5.83561 5.06439C6.0044 5.23317 6.09922 5.46209 6.09922 5.70078V11.1008C6.09922 11.3395 6.0044 11.5684 5.83561 11.7372C5.66683 11.906 5.43791 12.0008 5.19922 12.0008C4.96052 12.0008 4.73161 11.906 4.56282 11.7372C4.39404 11.5684 4.29922 11.3395 4.29922 11.1008V5.70078ZM8.79922 4.80078C8.56052 4.80078 8.33161 4.8956 8.16282 5.06439C7.99404 5.23317 7.89922 5.46209 7.89922 5.70078V11.1008C7.89922 11.3395 7.99404 11.5684 8.16282 11.7372C8.33161 11.906 8.56052 12.0008 8.79922 12.0008C9.03791 12.0008 9.26683 11.906 9.43561 11.7372C9.6044 11.5684 9.69922 11.3395 9.69922 11.1008V5.70078C9.69922 5.46209 9.6044 5.23317 9.43561 5.06439C9.26683 4.8956 9.03791 4.80078 8.79922 4.80078Z" />
-                                                            </svg>
-                                                            <span>
-                                                                Delete
-                                                            </span>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                            <template v-else>
-                                <NoData :span="7">
-                                    No available data users yet
-                                </NoData>
-                            </template>
-                        </tbody>
-                        <tbody v-else>
-                            <tr v-for="n in 5" :key="n" class="border-b animate-pulse">
-                                <td class="px-4 py-3">
-                                    <div class="w-16 h-16 rounded-full bg-slate-200"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="h-4 w-32 bg-slate-200 rounded"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="h-4 w-24 bg-slate-200 rounded"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="h-4 w-20 bg-slate-200 rounded"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="h-4 w-28 bg-slate-200 rounded"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="h-6 w-16 bg-slate-200 rounded-full"></div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="ml-auto h-8 w-8 bg-slate-200 rounded-lg"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <FooterTable :bg="'primary-admin'" :pagination="pagination" @change="handlepagination" />
-                </div>
             </div>
-        </section>
-        
-        <!-- End block -->
-        <!-- Create modal -->
+        </main>
+
+        <Search :placeholder="'Search name'" @searching="handlesearching">
+            <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
+        </Search>
+
+        <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
+            <div class="bg-white relative overflow-x-auto shadow-md sm:rounded-lg outline-1 outline-slate-200">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-primary-admin">
+                        <tr>
+                            <th scope="col" class="px-4 py-4" colspan="2">User profile</th>
+                            <th scope="col" class="px-4 py-3">Division</th>
+                            <th scope="col" class="px-4 py-3">Priority</th>
+                            <th scope="col" class="px-4 py-3">Date of join</th>
+                            <th scope="col" class="px-4 py-3">Status</th>
+                            <th scope="col" class="px-4 py-3">
+                                <span class="sr-only">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody v-if="!loading">
+                        <template v-if="datas.length > 0">
+                            <tr v-for="(data, index) in datas" :key="index" class="border-b">
+                                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap"><img :src="data.pict ? `` : `https://ui-avatars.com/api/?name=${data?.name}&background=7DD3FC&color=fff`" :alt="data.name" class="w-16 h-16 rounded-full ring-1 ring-gray-200"></th>
+                                <td class="px-4 py-3">{{ data.name }}</td>
+                                <td class="px-4 py-3">{{ data.division }}</td>
+                                <td class="px-4 py-3 font-second font-bold" :class="data.level == 1 ? 'text-red-500' : data.level == 2 ? 'text-green-500' : 'text-blue-500'">{{ data.level }}</td>
+                                <td class="px-4 py-3 max-w-[12rem] truncate">What is a product description? A product description describes a product.</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-x-2.5">
+                                        <div class="w-3 h-3 rounded-full" :class="data.status ? 'bg-thrid-admin' : 'bg-second-admin'" />
+                                        <span>{{ data.status ? 'Active' : 'Offline' }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 flex items-center justify-end">
+                                    <div class="relative flex justify-end">
+                                        <button @click.stop="action = index" class="inline-flex items-center text-sm font-medium hover:bg-gray-100 p-1.5 text-center text-gray-500 rounded-lg focus:outline-none" type="button">
+                                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                                            </svg>
+                                        </button>
+                                        <div v-if="action === index" class="absolute top-10 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow">
+                                            <ul class="py-1 text-sm">
+                                                <li>
+                                                    <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-gray-700">
+                                                        <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                                                        </svg>
+                                                        Edit
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-gray-700">
+                                                        <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                        </svg>
+                                                        Preview
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="flex w-full items-center py-2 px-4 hover:bg-gray-100 text-red-500">
+                                                        <svg class="w-4 h-4 mr-4" viewbox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                            <path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M6.09922 0.300781C5.93212 0.30087 5.76835 0.347476 5.62625 0.435378C5.48414 0.523281 5.36931 0.649009 5.29462 0.798481L4.64302 2.10078H1.59922C1.36052 2.10078 1.13161 2.1956 0.962823 2.36439C0.79404 2.53317 0.699219 2.76209 0.699219 3.00078C0.699219 3.23948 0.79404 3.46839 0.962823 3.63718C1.13161 3.80596 1.36052 3.90078 1.59922 3.90078V12.9008C1.59922 13.3782 1.78886 13.836 2.12643 14.1736C2.46399 14.5111 2.92183 14.7008 3.39922 14.7008H10.5992C11.0766 14.7008 11.5344 14.5111 11.872 14.1736C12.2096 13.836 12.3992 13.3782 12.3992 12.9008V3.90078C12.6379 3.90078 12.8668 3.80596 13.0356 3.63718C13.2044 3.46839 13.2992 3.23948 13.2992 3.00078C13.2992 2.76209 13.2044 2.53317 13.0356 2.36439C12.8668 2.1956 12.6379 2.10078 12.3992 2.10078H9.35542L8.70382 0.798481C8.62913 0.649009 8.5143 0.523281 8.37219 0.435378C8.23009 0.347476 8.06631 0.30087 7.89922 0.300781H6.09922ZM4.29922 5.70078C4.29922 5.46209 4.39404 5.23317 4.56282 5.06439C4.73161 4.8956 4.96052 4.80078 5.19922 4.80078C5.43791 4.80078 5.66683 4.8956 5.83561 5.06439C6.0044 5.23317 6.09922 5.46209 6.09922 5.70078V11.1008C6.09922 11.3395 6.0044 11.5684 5.83561 11.7372C5.66683 11.906 5.43791 12.0008 5.19922 12.0008C4.96052 12.0008 4.73161 11.906 4.56282 11.7372C4.39404 11.5684 4.29922 11.3395 4.29922 11.1008V5.70078ZM8.79922 4.80078C8.56052 4.80078 8.33161 4.8956 8.16282 5.06439C7.99404 5.23317 7.89922 5.46209 7.89922 5.70078V11.1008C7.89922 11.3395 7.99404 11.5684 8.16282 11.7372C8.33161 11.906 8.56052 12.0008 8.79922 12.0008C9.03791 12.0008 9.26683 11.906 9.43561 11.7372C9.6044 11.5684 9.69922 11.3395 9.69922 11.1008V5.70078C9.69922 5.46209 9.6044 5.23317 9.43561 5.06439C9.26683 4.8956 9.03791 4.80078 8.79922 4.80078Z" />
+                                                        </svg>
+                                                        <span>
+                                                            Delete
+                                                        </span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                        <template v-else>
+                            <NoData :span="7">
+                                No available data users yet
+                            </NoData>
+                        </template>
+                    </tbody>
+                    <tbody v-else>
+                        <tr v-for="n in 5" :key="n" class="border-b animate-pulse">
+                            <td class="px-4 py-3">
+                                <div class="w-16 h-16 rounded-full bg-slate-200"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="h-4 w-32 bg-slate-200 rounded"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="h-4 w-24 bg-slate-200 rounded"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="h-4 w-20 bg-slate-200 rounded"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="h-4 w-28 bg-slate-200 rounded"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="h-6 w-16 bg-slate-200 rounded-full"></div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="ml-auto h-8 w-8 bg-slate-200 rounded-lg"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <FooterTable :bg="'primary-admin'" :pagination="pagination" @change="handlepagination" />
+            </div>
+        </div>
+        <Create v-if="modalcreate" :divisions="props.divisions" @close="modalcreate = false" />
+
         <div class="hidden overflow-y-auto bg-black/50 overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full">
             <div class="relative p-4 w-full max-w-2xl max-h-full">
                 <!-- Modal content -->
@@ -358,7 +374,6 @@ onUnmounted(()=>{
                 </div>
             </div>
         </div>
-        <!-- Update modal -->
         <div class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
             <div class="relative p-4 w-full max-w-2xl max-h-full">
                 <!-- Modal content -->
@@ -404,7 +419,6 @@ onUnmounted(()=>{
                 </div>
             </div>
         </div>
-        <!-- Read modal -->
         <div class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
             <div class="relative p-4 w-full max-w-xl max-h-full">
                 <!-- Modal content -->
@@ -446,8 +460,8 @@ onUnmounted(()=>{
                 </div>
             </div>
         </div>
-
-        <!-- <DeleteData @cancel="" @delete="" /> -->
+        <CardUser />
+        <PaginationNumber />
     </AuthenticatedLayout>
 </template>
 

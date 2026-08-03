@@ -1,14 +1,14 @@
 <script setup>
 import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import TokenPass from '@/Components/TokenPass.vue';
 import { eror } from '@/Helper/Toast';
+import Login from '@/Layouts/Login.vue';
+import { UserRoundKey } from 'lucide-vue-next'
+ 
 defineProps({
     canResetPassword: {
         type: Boolean,
@@ -19,7 +19,7 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
+    login: '',
     password: '',
     remember: false,
 });
@@ -50,24 +50,27 @@ function handleemailclose(){
 </script>
 
 <template>
-    <GuestLayout>
+    <Login>
         <Head title="Log in" />
 
         <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
         </div>
-        <div data-aos="zoom-out" class="w-10 h-10 flex items-center justify-center rounded-lg bg-indigo-500 font-bold text-white">
-            A
+        <div class="flex justify-between items-center">
+            <div data-aos="zoom-out" class="p-1.5 max-w-max flex items-center justify-center rounded-lg bg-indigo-500 font-bold text-white">
+                <UserRoundKey size="30" />
+            </div>
+            <h2 class="font-primary text-slate-500">Portal Management</h2>
         </div>
         <div class="my-5">
             <h2 data-aos="fade-up" data-aos-anchor-placement="bottom-bottom" class="text-2xl md:text-4xl font-title font-bold">Welcome</h2>
-            <p data-aos="fade-down" data-aos-anchor-placement="bottom-bottom" class="my-3 font-second text-slate-500 text-sm">Sign in to dashboard with your account.</p>
+            <p data-aos="fade-down" data-aos-anchor-placement="bottom-bottom" class="my-3 font-second text-slate-500 text-sm">Sign in to BEMP Management with your account.</p>
         </div>
         <div class=" md:mt-24">
             <form @submit.prevent="submit">
                 <Transition name="slide-b">
                     <div v-if="btn">
-                        <label class="font-second font-semibold text-sm">Email</label>
+                        <label class="font-second font-semibold text-sm">Email or Username</label>
                         <div class="flex items-center my-2 border bg-indigo-500/5 border-gray-500/10 rounded-sm gap-1 pl-2">
                             <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="m2.5 4.375 3.875 2.906c.667.5 1.583.5 2.25 0L12.5 4.375" stroke="#6B7280" stroke-opacity=".6" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -75,15 +78,15 @@ function handleemailclose(){
                             </svg>
                             <TextInput
                                 id="email"
-                                type="email"
+                                type="text"
                                 class="my-1 mx-2 block w-full"
-                                v-model="form.email"
+                                v-model="form.login"
                                 required
                                 autofocus
                                 autocomplete="username"
                             />
                         </div>
-                        <InputError class="mt-2" :message="form.errors.email" />
+                        <InputError class="mt-2" :message="form.errors.login" />
                     </div>
                 </Transition>
 
@@ -131,7 +134,7 @@ function handleemailclose(){
             </form>
         </div>
         <TokenPass v-if="openmodal" @error="handleemailerror" @close="handleemailclose" />
-    </GuestLayout>
+    </Login>
 </template>
 
 <style scoped>

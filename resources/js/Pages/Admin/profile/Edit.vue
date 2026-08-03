@@ -1,16 +1,17 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/Admin/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import Header from '@/Components/Header.vue';
-import HeaderProfile from '@/Components/Profile/HeaderProfile.vue';
 import Image from '@/Components/Profile/Image.vue';
 import General from '@/Components/Profile/General.vue';
 import Authenticate from '@/Components/Profile/Authenticate.vue';
 import Otp from '@/Components/Otp.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ChangePass from '@/Components/Profile/ChangePass.vue';
+import { timeNow } from '@/Helper/DateNow.js';
+import { usePage } from '@inertiajs/vue3';
 
-const header = 'Profile';
+const user = usePage().props.auth?.user;
+const dateNow = timeNow();
 defineProps({
     mustVerifyEmail: {
         type: Boolean,
@@ -26,23 +27,32 @@ const handleopenOTP = (value)=>{
 const handlcloseOTP = ()=>{
     setTimeout(()=>modalOTP.value = false, 500);
 }
+onMounted(()=>{
+    console.log(user);
+})
 </script>
 
 <template>
     <Head title="Profile" />
 
     <AuthenticatedLayout>
-        <Header :text="header" />
-        <main class="flex-1 p-4 md:p-8">
-            <HeaderProfile />
-            <div class="bg-white rounded-xl mt-6 overflow-hidden shadow-sm">
-                <div>
-                    <Image />
-                    <General />
-                    <Authenticate @open="handleopenOTP" />
-                </div>
+        <template #header>
+            <div>
+                <h1 class="text-xl font-semibold font-second">
+                    Welcome, {{ user.first_name }}
+                </h1>
+
+                <p class="text-gray-500 text-sm">
+                    {{ dateNow }}
+                </p>
             </div>
-        </main>
+        </template>
+
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm">
+            <Image />
+            <General />
+            <Authenticate @open="handleopenOTP" />
+        </div>
         <Transition name="fold" :duration="{enter:0, leave:400}">
             <Otp v-if="modalOTP" @close="handlcloseOTP" />
         </Transition>

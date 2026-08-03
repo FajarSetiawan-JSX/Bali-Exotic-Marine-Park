@@ -17,14 +17,20 @@ return new class extends Migration
                 table: 'divisions',
                 indexName: 'divisions_user_id'
             );
-            $table->string('first_name');
-            $table->string('last_name')->nullable();
-            $table->string('middle_name')->nullable();
+            $table->string('name');
+            $table->text('nik');
+            $table->string('nik_hash', 64)->unique();
+            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('phone')->nullable();
+            $table->boolean('status')->default(TRUE);
+            $table->text('phone');
+            $table->string('phone_hash', 64)->unique();
+            $table->text('emergency');
+            $table->string('emergency_hash', 64)->unique();
             $table->string('gender')->nullable();
+            $table->string('born_at')->nullable();
             $table->date('birthday')->nullable();
             $table->text('address')->nullable();
             $table->text('profile')->nullable();

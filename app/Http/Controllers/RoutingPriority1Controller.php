@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Division;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-
 use function PHPSTORM_META\map;
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class RoutingPriority1Controller extends Controller
 {
@@ -20,6 +21,7 @@ class RoutingPriority1Controller extends Controller
         $divisions = Division::query()->with(['user'])->get();
         $result = $divisions->map(function ($divisi) {
             return [
+                'id' => $divisi['id'],
                 'nama' => $divisi['name'],
                 'color' => $divisi['hexa'],
                 'user' => $divisi->user()->count()
@@ -45,5 +47,25 @@ class RoutingPriority1Controller extends Controller
             ];
         });
         return Inertia::render('Admin/Division', ['divisions' => $result, 'Totaluser' => $totaluser, 'Totaldivisi' => $totaldivisi]);
+    }
+
+    public function attachment()
+    {
+        $total = User::count();
+        $divisions = Division::whereDoesntHave('watch')->whereHas('level', function ($query) {
+            $query->where('level', '=', 3);
+        })->with(['level', 'user'])->get();
+        $divisions = $divisions->map(function ($item) use ($total) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'level' => $item->level->level,
+                'description' => $item->description ? Str::limit($item->description, 20) : 'No Description',
+                'user' => $item->user()->count(),
+                'percentage' => floor(($item->user()->count() / $total) * 100),
+
+            ];
+        });
+        return Inertia::render('Admin/Attachment', ['divisions' => $divisions, 'total' => $total]);
     }
 }

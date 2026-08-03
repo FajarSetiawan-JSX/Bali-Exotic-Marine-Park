@@ -7,20 +7,20 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * MIGRATION UNTUK RELASI PENGAWASAN SUPERVISOR KE DIVISI LAIN (LEVEL USER 3)
+     * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('watches', function (Blueprint $table) {
+        Schema::create('assign_supervisor_for_divisions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained(
-                table: 'users',
-                indexName: 'watches_user_id'
-            );
             $table->foreignId('division_id')->constrained(
                 table: 'divisions',
-                indexName: 'divisions_watch_id'
-            );
+                indexName: 'handles_division_id'
+            )->cascadeOnDelete();
+            $table->foreignId('user_position_id')->constrained(
+                table: 'user_positions',
+                indexName: 'assigns_user_position_id'
+            )->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('watches');
+        Schema::dropIfExists('assign_supervisor_for_divisions');
     }
 };

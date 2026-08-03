@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['division_id', 'first_name', 'last_name', 'middle_name', 'email', 'password', 'phone', 'gender', 'birthday', 'address', 'profile', 'last_activity'])]
+#[Fillable(['division_id', 'name', 'nik', 'nik_hash', 'username', 'email', 'password', 'status', 'phone', 'phone_hash', 'emergency', 'emergency_hash', 'gender', 'born_at', 'birthday', 'address', 'profile', 'last_activity'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -37,9 +38,12 @@ class User extends Authenticatable
         return $this->belongsTo(Division::class, 'division_id');
     }
 
-    //RELASI HANYA UNTUK SUPERVISOR
-    public function watch(): HasMany
+    public function position(): HasOne
     {
-        return $this->hasMany(Watch::class, 'user_id');
+        return $this->hasOne(UserPosition::class, 'user_id');
+    }
+    public function log(): HasMany
+    {
+        return $this->hasMany(Log::class, 'user_id');
     }
 }

@@ -35,34 +35,37 @@ const footerLinks = {
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
                 <!-- Address -->
                 <div class="col-span-2 space-y-4">
-                    <div class="md:max-w-114">
-                        <img id="logo-footer" class="h-9 md:h-9.5 w-auto shrink-0" src="/assets/logo-bgwhite.png" alt="Logo" width={140} height={40} priority fetchPriority="high" />
+                    <div class="md:max-w-114 flex justify-start items-center gap-x-1.5">
+                        <img id="logo-footer" class="h-9 md:h-9.5 w-auto shrink-0" src="/EXOTIC.png" alt="Logo" width={140} height={40} priority fetchPriority="high" />
+                        <div>
+                            <h1 class="font-exotic1 text-white text-2xl font-semibold">Bali Exotic</h1>
+                            <h2 class="font-exotic2 text-slate-300 tracking-wide text-sm">Marine Park</h2>
+                        </div>
                     </div>
 
-                    <p class="text-sm leading-7">
-                        Platform manajemen SDM dan jadwal otomatis untuk
-                        perusahaan Indonesia modern.
+                    <p class="text-sm leading-7 font-second">
+                        Platform manajemen SDM dan jadwal otomatis Bali Exotic Marine Park.
                     </p>
 
                     <div class="space-y-2">
                         <div class="flex items-center gap-2">
                             <Mail class="w-4 h-4 shrink-0" />
                             <span class="text-[0.85rem]">
-                                halo@shiftsync.id
+                                baliexoticmarinepark@gmail.com
                             </span>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <Phone class="w-4 h-4 shrink-0" />
                             <span class="text-[0.85rem]">
-                                +62 21 5555 8888
+                                +62 853-3883-3678
                             </span>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <MapPin class="w-4 h-4 shrink-0" />
                             <span class="text-[0.85rem]">
-                                Jakarta Selatan, Indonesia
+                                Jalan Bali Eksotik No.8, Pedungan Denpasar City, Bali – 80222
                             </span>
                         </div>
                     </div>
@@ -97,15 +100,11 @@ const footerLinks = {
                 </div>
             </div>
 
-            <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p class="text-[0.82rem]">
-                © 2025 ShiftSync. Hak cipta dilindungi
+                © 2026 Bali Exotic Marine Park. Hak cipta dilindungi
                 undang-undang.
                 </p>
-
-                <div class="flex items-center gap-1 text-slate-500 text-[0.8rem]">
-                    <span>🇮🇩 Made with ❤️ in Indonesia</span>
-                </div>
             </div>
         </div>
     </footer>

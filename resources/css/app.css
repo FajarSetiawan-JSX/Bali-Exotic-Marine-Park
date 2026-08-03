@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap') layer(base);
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap') layer(base);
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap') layer(base);
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@300;400;500;600;700&display=swap') layer(base);
+@import url('https://fonts.googleapis.com/css2?family=Forum&display=swap') layer(base);
 @import 'tailwindcss';
 
 @plugin '@tailwindcss/forms';
@@ -17,6 +19,8 @@
   --font-title: Roboto Slab, serif;
   --font-primary: Inconsolata, monospace;
   --font-second: Inter, sans-serif;
+  --font-exotic1: Cormorant SC, sans-serif;
+  --font-exotic2: Forum, sans-serif;
   --color-primary-admin: #F5F7FF;
   --color-second-admin: #DEE9FC;
   --color-thrid-admin: #4648D4;

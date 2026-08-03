@@ -24,9 +24,9 @@ defineProps({
     },
 });
 const letters = [
-    ...'Build, launch and scale ',
-    ...'your Saas',
-    ...' faster'
+    ...'Bali Exotic ',
+    ...'Marine',
+    ...' Park'
 ]
 function handleImageError() {
     document.getElementById('screenshot-container')?.classList.add('hidden!');
@@ -47,7 +47,6 @@ onMounted(()=>{
 <template>
     <Head title="Welcome" />
     <Navbar />
-
     <!-- Hero Section -->
     <div class="flex flex-col items-center justify-center text-center bg-[url('/assets/hero-section-dot-image.png')] bg-cover bg-no-repeat bg-sky-100">
         <Transition name="slide-b">
