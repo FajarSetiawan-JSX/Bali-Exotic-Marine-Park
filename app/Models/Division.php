@@ -18,13 +18,49 @@ class Division extends Model
     {
         return $this->belongsTo(Level::class, 'level_id');
     }
-    public function user(): HasMany
+
+    public function unit(): HasOne
     {
-        return $this->hasMany(User::class, 'division_id');
+        return $this->hasOne(UnitDivision::class, 'division_id');
     }
 
-    public function TypeSchedule(): HasOne
+    public function position(): HasMany
     {
-        return $this->hasOne(DivisionTypeSchedule::class, 'division_id');
+        return $this->hasMany(DivisionPosition::class, 'division_id');
+    }
+
+    public function assign(): HasOne
+    {
+        return $this->hasOne(AssignSupervisor::class, 'division_id');
+    }
+    public function worktime(): HasMany
+    {
+        return $this->hasMany(DivisionWorkTime::class, 'division_id');
+    }
+
+    //Aksesor
+    public function getuser()
+    {
+        return User::whereHas('divisionPosition.divisionPosition.division', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->get();
+    }
+
+    public function gethead()
+    {
+        return User::whereHas('divisionPosition.divisionPosition.position', function ($query) {
+            $query->where('name', '=', 'Head');
+        })->whereHas('divisionPosition.divisionPosition.division', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->first();
+    }
+
+    public function getstaff()
+    {
+        return User::whereHas('divisionPosition.divisionPosition.position', function ($query) {
+            $query->where('name', '=', 'Staff');
+        })->whereHas('divisionPosition.divisionPosition.division', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->get();
     }
 }

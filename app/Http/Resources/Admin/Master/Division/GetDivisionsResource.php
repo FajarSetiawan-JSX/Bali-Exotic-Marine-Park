@@ -14,6 +14,16 @@ class GetDivisionsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $total = $this->getuser()->count();
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'level' => $this->level->level,
+            'unit' => $this->unit->unit->name,
+            'description' => $this->description,
+            'user' => $total > 5 ? $this->getuser()->take(4) : $this->getuser(),
+            'total' => $total
+        ];
     }
 }

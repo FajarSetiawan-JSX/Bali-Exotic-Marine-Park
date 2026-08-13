@@ -1,5 +1,4 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3'
@@ -7,7 +6,7 @@ import CircularLoading from '../CircularLoading.vue';
 import Swal from 'sweetalert2';
 import { succes, eror } from '@/Helper/Toast.js';
 
-const user = usePage().props.auth?.user;
+const props = defineProps(['user']);
 const loading = ref(false);
 const progress = ref(0);
 const uploadPhoto = async (e) => {
@@ -16,7 +15,7 @@ const uploadPhoto = async (e) => {
         const file = e.target.files[0];
         const form = new FormData();
         form.append('profile', file);
-        await axios.post('/api/profile/image', form, {
+        await axios.post(`/api/profile/image`, form, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
@@ -54,23 +53,17 @@ const uploadPhoto = async (e) => {
             <label
                 for="profile"
                 class="w-24 h-24 rounded-lg bg-cover bg-center cursor-pointer block ring-2 ring-white"
-                :style="{
-                    backgroundImage: `url(${
-                        user?.profile
-                            ? user.profile
-                            : `https://ui-avatars.com/api/?name=${user?.first_name}&background=7DD3FC&color=fff`
-                    })`
-                }"
+                :style="{ backgroundImage: `url(${props?.user?.profile ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(props.user?.name)}&background=7DD3FC&color=fff`})`}"
             />
             <div class="mx-5 grid grid-cols-1 gap-y-1.5">
                 <h2 class="font-semibold">
-                    {{ user.first_name }}
+                    {{ props?.user?.name }}
                 </h2>
 
                 <p class="text-gray-500 text-sm">
-                    {{ user.email }}
+                    {{ props?.user?.email }}
                 </p>
-                <h3 v-show="user.email_verified_at" class="font-second text-xs md:text-sm bg-fifth-admin text-thrid-admin rounded-full px-2 py-1 max-w-max">
+                <h3 v-show="props?.user?.verified" class="font-second text-xs md:text-sm bg-fifth-admin text-thrid-admin rounded-full px-2 py-1 max-w-max">
                     Verified Profile
                 </h3>
             </div>

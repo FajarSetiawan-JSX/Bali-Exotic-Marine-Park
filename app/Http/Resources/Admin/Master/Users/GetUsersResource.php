@@ -18,11 +18,28 @@ class GetUsersResource extends JsonResource
         return [
             'id' => $this->id,
             'pict' => $this->profile,
-            'name' => $this->first_name === Auth::user()->first_name ? 'You' : $this->first_name,
+            'name' => $this->name === Auth::user()->name ? 'You' : $this->name,
+            'nik' => decrypt($this->nik),
+            'username' => $this->username,
+            'email' => $this->email,
+            'phone' => decrypt($this->phone),
+            'emergency' => decrypt($this->emergency),
+            'gender' => $this->gender,
+            'city' => $this->born_at,
+            'birthday' => $this->birthday,
+            'address' => $this->address,
+            'division_id' => $this->division_id,
+            'position' => $this->position()->get()->map(function ($position) {
+                return [
+                    'id' => $position->position->id,
+                    'name' => $position->position->name
+                ];
+            }),
             'division' => $this->division->name,
             'level' => $this->division->level->level,
             'join' => $this->created_at,
-            'status' => $this->last_activity >= now()->subMinute(5) ? true : false
+            'status' => $this->status,
+            'online' => $this->last_activity >= now()->subMinute(5) ? true : false
         ];
     }
 }

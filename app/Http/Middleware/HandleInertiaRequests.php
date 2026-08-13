@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Level;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
@@ -33,19 +34,28 @@ class HandleInertiaRequests extends Middleware
         //ambil route dashboard dinamis sesuai divisi
         $user = Auth::user();
         $dashboardroute = null;
+        $level = null;
+        $division = null;
+        $position = null;
+
         if ($user) {
-            $dashboardroute = match ($user->division->level->level) {
+            $level = $user->getlevel();
+            $division = $user->getdivision();
+            $position = $user->getposition();
+            $dashboardroute = match ($user->getlevel()) {
                 1 => 'super.admin.dashboard',
                 2 => 'supervisor.dashboard',
                 3 => '',
-                'default' => 'default.dashboard',
+                null => 'default.dashboard',
             };
         }
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
-                'me' => $user,
+                'level' => $level,
+                'division' => $division,
+                'position' => $position,
                 //shere route melalui inertia
                 'dashboard' => $dashboardroute
             ],

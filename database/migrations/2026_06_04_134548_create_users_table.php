@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('division_id')->constrained(
-                table: 'divisions',
-                indexName: 'divisions_user_id'
-            );
             $table->string('name');
             $table->text('nik');
             $table->string('nik_hash', 64)->unique();
             $table->string('username')->unique();
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('status')->default(TRUE);

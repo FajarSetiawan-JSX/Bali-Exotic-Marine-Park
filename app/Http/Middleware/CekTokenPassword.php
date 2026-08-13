@@ -24,7 +24,7 @@ class CekTokenPassword
         if (!Hash::check($request->route('token'), $key->token)) {
             return abort(404, 'Token invalid.');
         }
-        if (now() < $key->created_at->addMinutes(60)) {
+        if (now() < $key->created_at->addMinutes(5) && $key->used == null) {
             return $next($request);
         } else {
             return abort(404, 'Token has expired.');

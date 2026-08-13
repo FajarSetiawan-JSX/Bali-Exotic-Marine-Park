@@ -54,7 +54,7 @@ class AuthController extends Controller
         $user = ForgetPassword::where('email', '=', $valid['email'])->latest()->first();
         if ($user && now() < $user->created_at->addMinutes(5)) {
             return response()->json([
-                'message' => 'Please wait before requesting another reset email.'
+                'message' => 'Please wait for 5 minutes before requesting another reset email.'
             ], 429);
         }
         DB::beginTransaction();
@@ -63,7 +63,7 @@ class AuthController extends Controller
         try {
             ForgetPassword::create([
                 'email' => $valid['email'],
-                'token' => $hash
+                'token' => $hash,
             ]);
             Mail::to($valid['email'])->send(new ResetPassword($token, $valid['email']));
             DB::commit();
@@ -76,7 +76,7 @@ class AuthController extends Controller
                 'file' => $e->getFile(),
             ]);
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => 'Internal Server Error'
             ], 500);
         }
     }
@@ -121,7 +121,12 @@ class AuthController extends Controller
             $user->update([
                 'password' => $hash
             ]);
-            $forget->delete();
+            $forget->update([
+                'used' => now()
+            ]);
+            $user->log()->create([
+                'log' => 'Change password'
+            ]);
             DB::commit();
             return response()->json(['message' => 'succes']);
         } catch (Exception $e) {

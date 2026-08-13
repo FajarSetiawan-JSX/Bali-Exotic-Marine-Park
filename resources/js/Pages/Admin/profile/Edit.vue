@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/Admin/AuthenticatedLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Image from '@/Components/Profile/Image.vue';
 import General from '@/Components/Profile/General.vue';
@@ -12,13 +12,16 @@ import { usePage } from '@inertiajs/vue3';
 
 const user = usePage().props.auth?.user;
 const dateNow = timeNow();
-defineProps({
+const props = defineProps({
     mustVerifyEmail: {
         type: Boolean,
     },
     status: {
         type: String,
     },
+    user: {
+        type: Object,
+    }
 });
 const modalOTP = ref(false);
 const handleopenOTP = (value)=>{
@@ -27,8 +30,9 @@ const handleopenOTP = (value)=>{
 const handlcloseOTP = ()=>{
     setTimeout(()=>modalOTP.value = false, 500);
 }
+
 onMounted(()=>{
-    console.log(user);
+    console.log(props?.user);
 })
 </script>
 
@@ -39,7 +43,7 @@ onMounted(()=>{
         <template #header>
             <div>
                 <h1 class="text-xl font-semibold font-second">
-                    Welcome, {{ user.first_name }}
+                    Welcome, {{ props?.user?.name }}
                 </h1>
 
                 <p class="text-gray-500 text-sm">
@@ -49,8 +53,8 @@ onMounted(()=>{
         </template>
 
         <div class="bg-white rounded-xl overflow-hidden shadow-sm">
-            <Image />
-            <General />
+            <Image :user="props?.user" />
+            <General :user="props?.user" />
             <Authenticate @open="handleopenOTP" />
         </div>
         <Transition name="fold" :duration="{enter:0, leave:400}">

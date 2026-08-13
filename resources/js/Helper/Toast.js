@@ -5,6 +5,9 @@ export function succes(respon, message) {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
+        customClass: {
+            container: 'swal-container'
+        },
         timer: 3000,
         timerProgressBar: true,
         html: `
@@ -31,6 +34,9 @@ export function eror(status, message) {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
+        customClass: {
+            container: 'swal-container'
+        },
         timer: 3000,
         timerProgressBar: true,
         html: `

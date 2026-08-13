@@ -4,26 +4,28 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
-import { usePage } from '@inertiajs/vue3';
 import { eror, succes } from '@/Helper/Toast';
-const user = usePage().props.auth?.user;
+import { User, UserStar, IdCard, Mail, Phone, PhoneForwarded, MapPin } from 'lucide-vue-next';
 
+const props = defineProps(['user']);
 const loading = ref(false);
 const form = ref({
-    first_name: '',
-    last_name: '',
-    middle_name: '',
+    name: '',
+    username: '',
+    nik: '',
     email: '',
-    phone: '',
     gender: '',
-    date_of_birth: '',
-    address: ''
+    birthday: '',
+    phone: '',
+    emergency: '',
+    city: '',
+    address: '',
 })
 const errors = ref({})
 const submit = async () => {
     try {
         loading.value = true;
-        const response = await axios.patch(`/api/profile/update/${user.id}`, form.value);
+        const response = await axios.patch(`/api/profile/update/${props?.user?.id}`, form.value);
         succes('Success!', 'Your profile updated')
     } catch (error) {
         if(error?.response?.status == 422){
@@ -36,134 +38,193 @@ const submit = async () => {
     }
 }
 onMounted(()=>{
-    form.value.first_name = user.first_name
-    form.value.last_name = user.last_name;
-    form.value.middle_name = user.middle_name;
-    form.value.email = user.email;
-    form.value.phone = user.phone;
-    form.value.gender = user.gender;
-    form.value.address = user.address;
-    form.value.date_of_birth = user.birthday;
+    console.log(props.user);
+    form.value.name = props?.user?.name;
+    form.value.username = props?.user?.username;
+    form.value.nik = props?.user?.nik;
+    form.value.email = props?.user?.email;
+    form.value.gender = props?.user?.gender;
+    form.value.birthday = props?.user?.birthday;
+    form.value.phone = props?.user?.phone;
+    form.value.emergency = props?.user?.emergency;
+    form.value.city = props?.user?.city;
+    form.value.address = props?.user?.address;
 })
 </script>
 
 <template>
     <form @submit.prevent="submit" class="p-4 md:p-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-2.5">
             <div>
                 <div>
                     <InputLabel>
-                        First Name
+                        Name
                     </InputLabel>
-                    <TextInput
-                        type="text"
-                        class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                        v-model="form.first_name"
-                        autocomplete="firstname"
-                        
-                        placeholder="Enter your first name"
-                    />
-                    <InputError class="mt-2" :message="errors?.first_name?.[0]" />
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <User size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.name"
+                            autocomplete="name"
+                            
+                            placeholder="Enter your name"
+                        />
+                    </div>
+                    <p v-if="errors.name" class="text-red-400 text-xs font-second">{{ errors?.name[0] }}</p>
                 </div>
 
                 <div>
                     <InputLabel>
-                        Last Name
+                        Username
                     </InputLabel>
-                    <TextInput
-                        type="text"
-                        class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                        v-model="form.last_name"
-                        autocomplete="lastname"
-                        placeholder="Enter your last name"
-                    />
-                    <InputError class="mt-2" :message="errors?.last_name?.[0]" />
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <UserStar size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.username"
+                            autocomplete="username"
+                            
+                            placeholder="Enter your username"
+                        />
+                    </div>
+                    <p v-if="errors.username" class="text-red-400 text-xs font-second">{{ errors?.username[0] }}</p>
                 </div>
 
                 <div>
                     <InputLabel>
-                        Gender
+                        ID Number (NIK)
                     </InputLabel>
-                    <select class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500" v-model="form.gender">
-                        <option value="" disabled>Select your gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                    <InputError class="mt-2" :message="errors?.gender?.[0]" />
-                </div>
-
-                <div>
-                    <InputLabel>
-                        Date of Birth
-                    </InputLabel>
-                    <TextInput
-                        type="date"
-                        v-model="form.date_of_birth"
-                        class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                    <InputError class="mt-2" :message="errors?.date_of_birth?.[0]" />
-                </div>
-            </div>
-
-            <div>
-                <div>
-                    <InputLabel>
-                        Middle Name
-                    </InputLabel>
-                    <TextInput
-                        type="text"
-                        class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                        v-model="form.middle_name"
-                        autocomplete="middlename"
-                        placeholder="Enter your middle name"
-                    />
-                    <InputError class="mt-2" :message="errors?.middle_name?.[0]" />
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <IdCard size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.nik"
+                            autocomplete="nik"
+                            
+                            placeholder="Enter your ID Number / NIK"
+                        />
+                    </div>
+                    <p v-if="errors?.nik" class="text-red-400 text-xs font-second">{{ errors?.nik[0] }}</p>
                 </div>
 
                 <div>
                     <InputLabel>
                         Email
                     </InputLabel>
-                    <TextInput
-                        type="email"
-                        class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                        v-model="form.email"
-                        autocomplete="email"
-                        placeholder="Enter your email address"
-                    />
-                    <InputError class="mt-2" :message="errors?.email?.[0]" />
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <Mail size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="email"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.email"
+                            autocomplete="name"
+                            
+                            placeholder="Enter your email"
+                        />
+                    </div>
+                    <p v-if="errors?.email" class="text-red-400 text-xs font-second">{{ errors?.email[0] }}</p>
                 </div>
 
                 <div>
                     <InputLabel>
-                        Phone
+                        Date of birthday
                     </InputLabel>
-                    <div class="flex w-full">
-                        <div class="my-1 mr-2 rounded-md border-gray-300 flex items-center justify-center">
-                            <span>
-                                +62
-                            </span>
-                        </div>
-                        <TextInput
-                            type="tel"
-                            class="my-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                            v-model="form.phone"
-                            autocomplete="phone"
-                            placeholder="Enter your phone number"
+                    <div class="max-h-max rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <input
+                            type="date"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.birthday"
+                            autocomplete="birthday"
                         />
                     </div>
-                    <InputError class="mt-2" :message="errors?.phone?.[0]" />
+                    <p v-if="errors?.birthday" class="text-red-400 text-xs font-second">{{ errors?.birthday[0] }}</p>
+                </div>
+            </div>
+
+            <div>
+                <div>
+                    <InputLabel>
+                        Phone
+                    </InputLabel>
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <Phone size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.phone"
+                            autocomplete="phone"
+                            
+                            placeholder="Enter your phone"
+                        />
+                    </div>
+                    <p v-if="errors.phone" class="text-red-400 text-xs font-second">{{ errors?.phone[0] }}</p>
+                </div>
+
+                <div>
+                    <InputLabel>
+                        Emergency Phone
+                    </InputLabel>
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <PhoneForwarded size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.emergency"
+                            autocomplete="emergency"
+                            
+                            placeholder="Enter your emergency phone"
+                        />
+                    </div>
+                    <p v-if="errors.emergency" class="text-red-400 text-xs font-second">{{ errors?.emergency[0] }}</p>
+                </div>
+
+                <div>
+                    <InputLabel>
+                        City
+                    </InputLabel>
+                    <div class="flex items-center max-h-max justify-start rounded-lg border-1 border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm group">
+                        <MapPin size="20" class="text-slate-400 group-focus-within:text-slate-500" />
+                        <input
+                            type="text"
+                            class="w-full border-0 focus:border-0 focus:ring-0"
+                            v-model="form.city"
+                            autocomplete="city"
+                            
+                            placeholder="Enter your city"
+                        />
+                    </div>
+                    <p v-if="errors.city" class="text-red-400 text-xs font-second">{{ errors?.city[0] }}</p>
                 </div>
 
                 <div>
                     <InputLabel>
                         Address
                     </InputLabel>
-                    <textarea class="my-1 mx-2 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500" v-model="form.address" placeholder="Enter your address"></textarea>
-                    <InputError class="mt-2" :message="errors?.address?.[0]" />
+                    <textarea v-model="form.address" class="rounded-lg border-1 w-full border-gray-200 ring-1 ring-gray-100 px-3 my-1.5 focus-within:border-gray-300 focus-within:ring-gray-200 focus-within:shadow-sm"></textarea>
+                    <p v-if="errors?.address" class="text-red-400 text-xs font-second">{{ errors?.address[0] }}</p>
+                </div>
+
+                <div>
+                    <InputLabel>
+                        Gender
+                    </InputLabel>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label for="male" class="text-slate-800">
+                            <input v-model="form.gender" type="radio" name="gender" id="male" value="male">
+                            Male
+                        </label>
+
+                        <label for="female" class="text-slate-800">
+                            <input v-model="form.gender" type="radio" name="gender" id="female" value="female">
+                            Female
+                        </label>
+                    </div>
+                    <p v-if="errors?.gender" class="text-red-400 text-xs font-second">{{ errors?.gender[0] }}</p>
                 </div>
             </div>
-            
         </div>
         <button type="submit" :disabled="loading" :class="[loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100', 'bg-blue-500 text-white px-5 py-2 font-second rounded-lg w-full my-2 flex items-center justify-center hover:bg-blue-600 transition-all duration-200']">
             <svg v-show="!loading" class="fill-current mx-2.5" width="15px" height="18px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">

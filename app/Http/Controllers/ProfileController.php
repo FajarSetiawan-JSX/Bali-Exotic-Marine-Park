@@ -19,12 +19,31 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         $user = Auth::user();
-        if ($user->division->level->level == 1) {
+        $user = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'nik' => decrypt($user->nik),
+            'username' => $user->username,
+            'email' => $user->email,
+            'phone' => decrypt($user->phone),
+            'emergency' => decrypt($user->emergency),
+            'gender' => $user->gender,
+            'city' => $user->born_at,
+            'birthday' => $user->birthday,
+            'address' => $user->address,
+            'profile' => $user->profile,
+            'verified' => $user->email_verified_at,
+            'division' => $user->division->level->level,
+            'position' => $user->position?->position_id
+        ];
+        if ($user['division'] == 1) {
             return Inertia::render('Admin/profile/Edit', [
                 'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
                 'status' => session('status'),
+                'user' => $user
+
             ]);
-        } elseif ($user->division->level->level == 2) {
+        } elseif ($user['division'] == 2) {
         } else {
         }
     }

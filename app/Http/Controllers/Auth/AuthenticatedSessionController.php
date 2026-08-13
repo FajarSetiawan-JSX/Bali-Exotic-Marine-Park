@@ -35,11 +35,11 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        return match ($user->division->level->level) {
+        return match ($user->getlevel()) {
             1 => redirect()->route('super.admin.dashboard'),
             2 => redirect()->route('supervisor.dashboard'),
             3 => redirect()->route(''),
-            'default' => redirect()->route('default.dashboard'),
+            null => redirect()->route('default.dashboard'),
         };
     }
 

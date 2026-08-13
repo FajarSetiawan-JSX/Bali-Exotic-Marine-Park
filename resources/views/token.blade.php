@@ -66,7 +66,7 @@
 
                     <tr>
                         <td style="background:#f9fafb;padding:20px;text-align:center;font-size:12px;color:#9ca3af;">
-                            © {{ date('Y') }} Your Company. All rights reserved.
+                            © {{ date('Y') }} Bali Exotic Marine Park. All rights reserved.
                         </td>
                     </tr>
 

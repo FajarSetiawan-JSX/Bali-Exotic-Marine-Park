@@ -2,47 +2,60 @@
 import FormLoading from '@/Components/FormLoading.vue';
 import { Paperclip, ClipboardList } from 'lucide-vue-next';
 import { ref } from 'vue';
+import axios from 'axios';
+import { eror } from '@/Helper/Toast';
 
 const emit = defineEmits(['close']);
-const props = defineProps(['divisions', 'users'])
+const props = defineProps(['divisions', 'supervisors'])
 const loading = ref(false);
+const form = ref({
+    supervisor: '',
+    divisions: []
+})
+const err = ref({});
 async function attach() {
     try{
         loading.value = true;
+        const response = await axios.post('/api/priority-first/supervisor', form.value)
     }catch(error){
+        if(error?.response?.status == 422){
+            err.value = error?.response?.data?.errors;
+        }
+        eror(error?.response?.status, error?.response?.data?.message);
         console.log(error?.response);
     }finally{
         loading.value = false;
     }
 }
+console.log(props.divisions)
 </script>
 
 <template>
     <div @click="emit('close')" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gradient-to-br from-indigo-950/95 via-violet-900/85 to-fuchsia-900/90 backdrop-blur-sm">
         <section @click.stop data-aos="zoom-in" class="p-3 rounded-lg border-2 border-slate-300 bg-white mx-3 max-w-lg">
             <h1 data-aos="fade-up" data-aos-delay="500" class="text-sky-800 font-second text-lg text-center">Supervisor Assignment</h1>
-            <p data-aos="fade-down" data-aos-delay="500" class="font-primary text-black">Manage and allocate supervisors to their respective regional divisions.</p>
+            <p data-aos="fade-down" data-aos-delay="500" class="font-primary text-black text-center">Manage and allocate supervisors to their respective regional divisions.</p>
             <form action="" @submit.prevent="attach" class="grid grid-cols-1 gap-y-2">
                 <div class="w-full">
                     <h1 class="font-second mb-2">Select Supervisor</h1>
-                    <label for="spv" class="p-3 rounded-lg bg-slate-100 border-1 border-slate-200 flex justify-between items-center font-second">
+                    <label :for="supervisor.id" v-for="supervisor in props.supervisors" :key="supervisor.id" class="p-3 rounded-lg bg-slate-100 border-1 border-slate-200 flex justify-between items-center font-second">
                         <div class="flex items-center justify-start gap-x-2">
                             <div class="relative">
                                 <img src="https://ui-avatars.com/api/?name=S1&background=3567FF&color=FFFFFF" alt="" class="w-10 h-10 rounded-full">
                                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse duration-500 absolute bottom-0 right-0" />
                             </div>
                             <div>
-                                <h1 class="text-sm">Supervisor</h1>
-                                <h2 class="text-xs">User Priority 2</h2>
+                                <h1 class="text-sm">{{ supervisor.nama }}</h1>
+                                <h2 class="text-xs">User Level 2</h2>
                             </div>
                         </div>
-                        <input type="radio" name="" id="spv">
+                        <input type="radio" name="" :id="supervisor.id" v-model="form.supervisor" :value="supervisor.id">
                     </label>
                 </div>
                 <h1 class="font-second my-2">Select Division</h1>
                 <div class="flex items-center gap-x-2 scroll-premium w-full">
-                    <label v-for="division in props.divisions" :key="division.id" :for="division.name" class="cursor-pointer shrink-0 rounded-2xl w-80 border border-slate-200 bg-slate-100 p-4 transition-all duration-300 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 hover:border-indigo-300">
-                        <input type="checkbox" :id="division.name" :value="division.id" class="hidden peer"/>
+                    <label v-for="division in props.divisions" :key="division.id" :for="division.name" class="cursor-pointer w-90 h-40 shrink-0 rounded-2xl w-80 border border-slate-200 bg-slate-100 p-4 transition-all duration-300 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 hover:border-indigo-300">
+                        <input type="checkbox" v-model="form.divisions" :id="division.name" :value="division.id" class="hidden peer"/>
                         <div class="flex items-center justify-between w-full">
                             <div class="flex items-center gap-4">
                                 <div class="grid h-14 w-14 place-items-center rounded-xl bg-indigo-100">
@@ -63,7 +76,7 @@ async function attach() {
                         </div>
                         <div class="mt-6">
                             <div class="mb-2 flex justify-between text-sm text-slate-500">
-                                <span>Users: {{ division.user }} / {{ props.users }}</span>
+                                <span>Users: {{ division.user }} / {{ division.total }}</span>
                                 <span>{{ division.percentage }}%</span>
                             </div>
                             <div class="h-2 overflow-hidden rounded-full bg-slate-200">
@@ -75,7 +88,7 @@ async function attach() {
                 <button type="submit" :disabled="loading" :class="loading ? 'opacity-50' : 'opacity-100'" class="bg-indigo-900 text-white py-2.5 rounded-2xl">
                     <div v-if="!loading" class="flex items-center justify-center gap-x-2">
                         <Paperclip size="20" class="text-white" />
-                        Attach
+                        Assign
                     </div>
                     <FormLoading v-else color="bg-white my-3" />
                 </button>

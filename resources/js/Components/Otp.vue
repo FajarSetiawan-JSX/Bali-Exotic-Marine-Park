@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-
+import axios from 'axios';
+import { eror,succes } from '@/Helper/Toast';
 const props = defineProps(['open']);
 const otp = ref(['', '', '', '', '', '']);
 const emit = defineEmits(['close']);
@@ -41,12 +42,13 @@ const handlePaste = (e) => {
 async function sendOTP() {
     try{
         sending.value = true;
+        const response = await axios.get('/api/send')
+        console.log(response?.data);
     }catch(error){
+        eror(error?.response?.status, error?.response?.data?.message);
         console.log(error);
     }finally{
-        setTimeout(() => {
-            sending.value = false;
-        }, 2000);
+        sending.value = false;
     }
 }
 onMounted(()=>{
@@ -56,13 +58,7 @@ onMounted(()=>{
 
 <template>
     <div class="fixed inset-0 z-[9999] bg-[#050B2E] opacity-90 flex items-center justify-center p-6">
-        <div
-            class="w-full max-w-2xl rounded-[32px]
-            bg-white/10 backdrop-blur-xl
-            border border-white/10
-            shadow-[0_20px_80px_rgba(0,0,0,0.4)]
-            p-8"
-        >
+        <div class="w-full max-w-2xl rounded-[32px] bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.4)] p-8">
             <h1 class="text-5xl font-bold text-white mb-2 font-second">
                 Security Check
             </h1>

@@ -7,14 +7,15 @@ const props = defineProps({
         default: 'Search...'
     }
 })
-
-const emit = defineEmits(['search'])
+const keyword = defineModel({
+    type: String,
+    default: ''
+})
 
 const toolbar = ref(null)
 const input = ref(null)
 
 const isOpen = ref(false)
-const keyword = ref('')
 
 function open() {
     isOpen.value = true
@@ -35,12 +36,7 @@ function toggle() {
 
 function clear() {
     keyword.value = ''
-    emit('search', '')
     nextTick(() => input.value?.focus())
-}
-
-function search() {
-    emit('search', keyword.value)
 }
 
 function clickOutside(e) {
@@ -105,7 +101,6 @@ onUnmounted(() => {
                         ref="input"
                         v-model="keyword"
                         :placeholder="placeholder"
-                        @input="search"
                         class="h-12 flex-1 bg-transparent text-sm outline-none"
                     >
 

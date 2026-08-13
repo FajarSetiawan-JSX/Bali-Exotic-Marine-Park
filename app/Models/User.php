@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['division_id', 'name', 'nik', 'nik_hash', 'username', 'email', 'password', 'status', 'phone', 'phone_hash', 'emergency', 'emergency_hash', 'gender', 'born_at', 'birthday', 'address', 'profile', 'last_activity'])]
+#[Fillable(['name', 'nik', 'nik_hash', 'username', 'email', 'password', 'status', 'phone', 'phone_hash', 'emergency', 'emergency_hash', 'gender', 'born_at', 'birthday', 'address', 'profile', 'last_activity'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -33,17 +33,39 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function division(): BelongsTo
+    //Aksesor
+    public function getlevel(): ?int
     {
-        return $this->belongsTo(Division::class, 'division_id');
+        return Level::whereHas('division.position.user.user', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->value('level');
     }
 
-    public function position(): HasOne
+    public function getdivision(): ?string
     {
-        return $this->hasOne(UserPosition::class, 'user_id');
+        return Division::whereHas('position.user.user', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->value('name');
     }
+
+    public function getposition()
+    {
+        return DivisionPosition::whereHas('user.user', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->pluck('name');
+    }
+    //penutup aksesor
+
     public function log(): HasMany
     {
         return $this->hasMany(Log::class, 'user_id');
+    }
+    public function otp(): HasMany
+    {
+        return $this->hasMany(Log::class, 'user_id');
+    }
+    public function divisionPosition(): HasMany
+    {
+        return $this->hasMany(UserDivisionPosition::class, 'user_id');
     }
 }

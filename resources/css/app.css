@@ -48,6 +48,10 @@
   }
 }
 
+.swal-container {
+  z-index: 999999 !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
