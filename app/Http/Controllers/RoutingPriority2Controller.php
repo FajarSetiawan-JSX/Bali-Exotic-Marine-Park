@@ -11,4 +11,14 @@ class RoutingPriority2Controller extends Controller
     {
         return Inertia::render('Supervisor/Dashboard');
     }
+
+    public function schedule()
+    {
+        return Inertia::render('Supervisor/Schedule');
+    }
+
+    public function reschedule()
+    {
+        return Inertia::render('Supervisor/Reschedule');
+    }
 }

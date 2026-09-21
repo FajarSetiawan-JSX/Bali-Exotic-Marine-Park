@@ -17,7 +17,7 @@ class Supervisor
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if (!$user || $user->division->level->level !== 2) {
+        if (!$user || $user->getlevel() !== 2) {
             return response()->json(['message' => 'You are not Supervisor, you dont have permission to access this end point'], 403);
         }
         return $next($request);

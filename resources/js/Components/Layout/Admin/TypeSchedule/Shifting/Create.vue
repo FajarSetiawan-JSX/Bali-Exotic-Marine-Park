@@ -21,7 +21,7 @@ async function create() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.post('/api/priority-first/Shifting', form.value);
+        const response = await axios.post(route('super.admin.shifting.store'), form.value);
         emit('success')
     }catch(error){
         eror(error?.response?.status, error?.response?.data?.message);

@@ -7,7 +7,7 @@ import { computed } from "vue";
 const page = usePage();
 const props = defineProps({ status: Number, message: String });
 const link = computed(()=>{
-    return page?.props?.auth?.me ? route(page?.props?.auth?.dashboard) : route('home')
+    return page?.props?.auth?.user ? route('dashboard') : route('home')
 });
 </script>
 

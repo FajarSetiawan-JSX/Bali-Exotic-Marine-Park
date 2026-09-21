@@ -21,7 +21,7 @@ const time = ref({});
 async function get() {
     try{
         loading.value = true;
-        const response = await axios.get('/api/priority-first/Shifting');
+        const response = await axios.get(route('super.admin.shifting.index'));
         times.value = response?.data?.data;
         console.log(response.data);
     }catch(error){

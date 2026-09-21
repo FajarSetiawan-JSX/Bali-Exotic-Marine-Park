@@ -23,7 +23,20 @@ class RoutingPriority1Controller extends Controller
 {
     public function dashboard()
     {
-        return Inertia::render('Admin/Dashboard');
+        $levels = Level::with(['division'])->get();
+        $datalevel = [];
+        foreach ($levels as $level) {
+            $datalevel[] = $level->division()->count();
+        }
+        $label = [];
+        $data = [];
+        $divisions = Division::get();
+        foreach ($divisions as $divisi) {
+            $label[] = $divisi->name;
+            $data[] = $divisi->getuser()->count();
+        }
+        $user = User::count();
+        return Inertia::render('Admin/Dashboard', ['datalevel' => $datalevel, 'label' => $label, 'data' => $data, 'user' => $user]);
     }
     public function user()
     {
@@ -34,7 +47,7 @@ class RoutingPriority1Controller extends Controller
             return [
                 'id' => $divisi['id'],
                 'nama' => $divisi['name'],
-                'positon' => $divisi->position()->get()->map(function ($position) {
+                'position' => $divisi->position()->get()->map(function ($position) {
                     return [
                         'id' => $position->id,
                         'header' => $position->position->name,
@@ -77,8 +90,6 @@ class RoutingPriority1Controller extends Controller
 
     public function spvassign()
     {
-
-
         return Inertia::render('Admin/Assign');
     }
 
@@ -105,5 +116,16 @@ class RoutingPriority1Controller extends Controller
     public function schedule()
     {
         return Inertia::render('Admin/Schedule');
+    }
+
+    public function web()
+    {
+        
+        return Inertia::render('Admin/Web');
+    }
+    
+    public function api()
+    {
+        return Inertia::render('Admin/Api');
     }
 }

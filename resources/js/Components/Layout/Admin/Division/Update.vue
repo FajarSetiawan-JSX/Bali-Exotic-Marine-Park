@@ -24,7 +24,7 @@ async function update() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.patch(`/api/priority-first/division/${props?.division?.id}`, form.value);
+        const response = await axios.patch( route('super.admin.division.update', props?.division?.id), form.value);
         emit('success')
     }catch(error){
         if(error?.response?.status == 422){

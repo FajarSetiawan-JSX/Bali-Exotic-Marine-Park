@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Level;
+use App\Models\Permission_api;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +19,12 @@ class superadmin
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if (!$user || $user->getlevel() !== 1) {
-            return response()->json(['message' => 'You are not Super Admin, you dont have permission to access this end point'], 403);
+        $routename = $request->route()->getName();
+        $assemblypermission = $user->api()->filter(function ($item) use ($routename) {
+            return $item->api->scope === 'Super Admin' && $item->api->route == $routename;
+        });
+        if ($assemblypermission->isEmpty()) {
+            return response()->json(['message' => 'Access denied'], 403);
         }
         return $next($request);
     }

@@ -19,9 +19,10 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         $user = Auth::user();
-        $user = [
+        $data = [
             'id' => $user->id,
             'name' => $user->name,
+            'status' => $user->status,
             'nik' => decrypt($user->nik),
             'username' => $user->username,
             'email' => $user->email,
@@ -33,27 +34,33 @@ class ProfileController extends Controller
             'address' => $user->address,
             'profile' => $user->profile,
             'verified' => $user->email_verified_at,
-            'division' => $user->division->level->level,
-            'position' => $user->position?->position_id
+            'division' => $user->getdivision(),
+            'position' => $user->getposition(),
+            'unit' => $user->getunit(),
+            'level' => $user->getlevel()
         ];
-        if ($user['division'] == 1) {
+        if ($user->getlevel() == 1) {
             return Inertia::render('Admin/profile/Edit', [
                 'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
                 'status' => session('status'),
-                'user' => $user
+                'user' => $data
 
             ]);
-        } elseif ($user['division'] == 2) {
         } else {
+            return Inertia::render('General/Profile', [
+                'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+                'status' => session('status'),
+                'user' => $data
+            ]);
         }
     }
 
     public function changepassword()
     {
         $user = Auth::user();
-        if ($user->division->level->level == 1) {
+        if ($user->getlevel() == 1) {
             return Inertia::render('Admin/profile/Changepassword');
-        } elseif ($user->division->level->level == 2) {
+        } elseif ($user->getlevel() == 2) {
         } else {
         }
     }

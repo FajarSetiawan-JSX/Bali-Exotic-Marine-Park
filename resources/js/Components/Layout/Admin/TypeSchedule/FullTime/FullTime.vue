@@ -20,7 +20,7 @@ const time = ref({});
 async function get() {
     try{
         loading.value = true;
-        const response = await axios.get('/api/priority-first/Fulltime');
+        const response = await axios.get(route('super.admin.fulltime.index'));
         times.value = response?.data?.data;
     }catch(error){
         console.log(error?.response);
@@ -78,7 +78,9 @@ onMounted(()=>{
     </template>
     <template v-else>
         <template v-if="times.length > 0">
-            <Card v-for="time in times" :key="time.id" :time="time" @update="handleopenupdate" />
+            <div class="grid grid-cols-1 gap-5">
+                <Card v-for="time in times" :key="time.id" :time="time" @update="handleopenupdate" />
+            </div>
         </template>
     </template>
 
@@ -97,7 +99,7 @@ onMounted(()=>{
                     </button>
                 </div>
                 <div v-if="showdropdown" class="ml-7 my-5 grid grid-cols-1 gap-5">
-                    <div v-for="(division, index) in props?.worktime?.division_work" :key="division.id" data-aos="fade-up" :data-aos-delay="index * 200" data-aos-offset="0" class="flex items-center justify-start gap-x-1.5 bg-white rounded-lg shadow-md">
+                    <div v-for="(division, index) in props?.worktime?.division_work" :key="division.id" class="flex items-center justify-start gap-x-1.5 bg-white rounded-lg shadow-md">
                         <div class="flex items-center justify-between w-full px-3">
                             <div class="flex items-center gap-x-1">
                                 <div class="p-3 border-r-2 border-indigo-600">

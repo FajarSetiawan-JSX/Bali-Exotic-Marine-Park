@@ -1,11 +1,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { MoreVertical, Pencil, Trash2 } from 'lucide-vue-next'
+import { MoreVertical, Pencil, Trash2, Info, Globe, FileStack } from 'lucide-vue-next'
 import { timeNow } from '@/Helper/DateNow'
 import { computed } from 'vue'
 import { eror, succes } from '@/Helper/Toast'
 import axios from 'axios';
+import { Link } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
 
+const user = usePage().props?.auth;
 const props = defineProps({
     user: {
         type: Object
@@ -24,7 +27,7 @@ const active = computed({
 async function toggle() {
     try{
         loading.value = true;
-        const response = await axios.patch(`/api/priority-first/user/status/${props?.user?.id}`, {
+        const response = await axios.patch(('super.admin.user.status', props?.user?.id), {
             status: active.value
         })
         succes('Success',response?.data?.message);
@@ -66,9 +69,11 @@ onUnmounted(() => {
                     <h2 class="text-xl font-semibold text-slate-800">
                         {{ props?.user?.name }}
                     </h2>
-                    <span class="mt-1 inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
-                        Head
-                    </span>
+                    <template v-if="props?.user?.position?.length > 0">
+                        <span v-for="position in props?.user?.position" class="mt-1 inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 mx-3">
+                            {{ position }}
+                        </span>
+                    </template>
                 </div>
             </div>
             <!-- Menu -->
@@ -78,14 +83,28 @@ onUnmounted(() => {
                 </button>
                 <Transition name="zoom">
                     <div v-if="showMenu" class="absolute right-0 top-10 z-20 w-40 overflow-hidden rounded-xl border bg-white shadow-xl">
-                        <button type="button" @click="emit('update', props?.user)" class="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-slate-50">
-                            <Pencil :size="16"/>
-                            Edit
-                        </button>
-                        <button type="button" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50">
-                            <Trash2 :size="16"/>
-                            Delete
-                        </button>
+                        <Link :href="route('user.detail', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-emerald-500 hover:bg-emerald-50">
+                            <Info :size="16"/>
+                            Detail
+                        </Link>
+                        <template v-if="user?.level == 1">
+                            <Link :href="route('super.admin.user.access', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-yellow-500 hover:bg-yellow-50">
+                                <Globe :size="16"/>
+                                Access
+                            </Link>
+                            <Link :href="route('user.history', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-purple-500 hover:bg-purple-50">
+                                <FileStack :size="16"/>
+                                History
+                            </Link>
+                            <button type="button" @click="emit('update', props?.user)" class="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-slate-50">
+                                <Pencil :size="16"/>
+                                Edit
+                            </button>
+                            <button type="button" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50">
+                                <Trash2 :size="16"/>
+                                Delete
+                            </button>
+                        </template>
                     </div>
                 </Transition>
             </div>
@@ -96,13 +115,13 @@ onUnmounted(() => {
                 Division
             </span>
             <span class="text-right font-medium">
-                {{ props?.user?.division }}
+                {{ props?.user?.division ?? 'Unregistered' }}
             </span>
             <span class="text-slate-400">
                 Level
             </span>
             <span class="text-right font-medium">
-                {{ props?.user?.level }}
+                {{ props?.user?.level ?? 'Unregistered' }}
             </span>
             <span class="text-slate-400">
                 Joined
@@ -117,11 +136,13 @@ onUnmounted(() => {
             <span :class="props.user.status ? 'text-emerald-600' : 'text-red-500'" class="font-medium ">
                 {{ props?.user?.status == 1 ? 'Active' : 'Non active' }}
             </span>
-            <label class="relative inline-flex cursor-pointer">
-                <input :disabled="loading" v-model="active" @change="toggle" type="checkbox" class="peer sr-only">
-                <div class="peer h-7 w-12 rounded-full bg-slate-300 transition peer-checked:bg-emerald-600"/>
-                <div class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition peer-checked:translate-x-5"/>
-            </label>
+            <template v-if="user?.level == 1">
+                <label class="relative inline-flex cursor-pointer">
+                    <input :disabled="loading" v-model="active" @change="toggle" type="checkbox" class="peer sr-only">
+                    <div class="peer h-7 w-12 rounded-full bg-slate-300 transition peer-checked:bg-emerald-600"/>
+                    <div class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition peer-checked:translate-x-5"/>
+                </label>
+            </template>
         </div>
     </div>
 </template>

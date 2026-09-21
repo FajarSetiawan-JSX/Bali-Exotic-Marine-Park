@@ -5,9 +5,10 @@ import { UserRoundPlus, Plus } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import { eror, succes } from '@/Helper/Toast';
+import { computed } from 'vue';
 
 const emit = defineEmits(['close', 'success']);
-const props = defineProps(['divisions', 'positions']);
+const props = defineProps(['divisions']);
 const show = ref(false);
 const loading = ref(false);
 const form = ref({
@@ -22,7 +23,7 @@ const form = ref({
     city: '',
     address: '',
     division: '',
-    position: ''
+    position: []
 });
 function reset(){
     form.value.name = '';
@@ -36,14 +37,18 @@ function reset(){
     form.value.city = '';
     form.value.address = '';
     form.value.division = '';
-    form.value.position = '';
+    form.value.position = [];
 }
+const selecteddivision = computed(() => {
+    return props.divisions.find(division => division.id === Number(form.value.division)) ?? null;
+});
+
 const err = ref({});
 async function create() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.post('/api/priority-first/user', form.value);
+        const response = await axios.post(route('super.admin.user.store'), form.value);
         emit('success');
         reset();
     }catch(error){
@@ -56,6 +61,7 @@ async function create() {
     }
 }
 onMounted(()=>{
+    console.log(props?.divisions)
     setTimeout(()=>{
         show.value = true;
     },500)
@@ -150,7 +156,7 @@ onMounted(()=>{
                         <p v-if="err?.city" class="text-xs font-second text-red-800">{{ err?.city[0] }}</p>
                     </div>
 
-                    <div>
+                    <div class="col-span-2">
                         <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
                             <label class="text-lg text-white italic">Division<span class="text-red-400">*</span></label>
                             <select v-model="form.division" class="rounded-lg">
@@ -161,13 +167,15 @@ onMounted(()=>{
                         <p v-if="err?.division" class="text-xs font-second text-red-800">{{ err?.division[0] }}</p>
                     </div>
 
-                    <div>
+                    <div class="col-span-2">
                         <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
                             <label class="text-lg text-white italic">Position<span class="text-red-400">*</span></label>
-                            <select v-model="form.position" class="rounded-lg">
-                                <option selected value="">Select Position</option>
-                                <option v-for="position in props.positions" :key="position.id" :value="position.id" class="text-black">{{ position.name }}</option>
-                            </select>
+                            <div v-if="selecteddivision?.position?.length > 0" class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                                <label v-for="position in selecteddivision?.position" :key="position.id" :for="position?.id" class="text-white font-second text-sm capitalize">
+                                    <input type="checkbox" :id="position?.id" :value="position?.id" v-model="form.position" class="rounded-sm">
+                                    {{ position?.name }}
+                                </label>
+                            </div>
                         </div>
                         <p v-if="err?.position" class="text-xs font-second text-red-800">{{ err?.position[0] }}</p>
                     </div>

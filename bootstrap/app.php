@@ -15,15 +15,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->throttleApi();
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
         $middleware->statefulApi();
         $middleware->alias([
+            'super_admin_page' => \App\Http\Middleware\SuperAdminPage::class,
+            'specific_page' => \App\Http\Middleware\SpecificPage::class,
+            'general_page' => \App\Http\Middleware\GeneralPage::class,
+
             'super_admin' => \App\Http\Middleware\superadmin::class,
-            'user_level_1' => \App\Http\Middleware\Level1::class,
-            'supervisor' => \App\Http\Middleware\Supervisor::class,
+            'specific' => \App\Http\Middleware\Specific::class,
+            'general' => \App\Http\Middleware\General::class,
             'activity' => \App\Http\Middleware\UpdateActivity::class,
             'cek-token' => \App\Http\Middleware\CekTokenPassword::class
         ]);

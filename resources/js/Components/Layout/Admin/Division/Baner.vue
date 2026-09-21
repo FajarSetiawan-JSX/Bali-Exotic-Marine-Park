@@ -46,16 +46,16 @@ onMounted(()=>{
         <div class="relative z-10 flex flex-wrap items-center justify-between gap-5">
             <!-- Left -->
             <div>
-                <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/20 px-3 py-1">
+                <div data-aos="zoom-in" class="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/20 px-3 py-1">
                     <div class="h-1.5 w-1.5 rounded-full bg-violet-300"/>
                     <span class="text-[11px] font-bold tracking-[0.15em] text-violet-200 uppercase">
                         Management Division
                     </span>
                 </div>
-                <h2 class="text-3xl font-extrabold">
+                <h2 data-aos="fade-up" class="text-3xl font-extrabold">
                     Organization structure
                 </h2>
-                <p class="mt-2 max-w-md text-sm text-white/60">
+                <p data-aos="fade-down" class="mt-2 max-w-md text-sm text-white/60">
                     Centrally manage organizational units, access rights, and the distribution of BEMP team members.
                 </p>
             </div>

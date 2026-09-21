@@ -18,7 +18,7 @@ async function update() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.patch(`/api/priority-first/position/${props?.data?.id}`, form.value);
+        const response = await axios.patch(route('super.admin.position.update', props?.data?.id), form.value);
         emit('success')
     }catch(error){
         if(error?.response?.status == 422){

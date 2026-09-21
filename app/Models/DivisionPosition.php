@@ -22,4 +22,12 @@ class DivisionPosition extends Model
     {
         return $this->hasMany(UserDivisionPosition::class, 'division_position_id');
     }
+    public function web(): HasMany
+    {
+        return $this->hasMany(Permission_web::class, 'division_position_id');
+    }
+    public function api(): HasMany
+    {
+        return $this->hasMany(Permission_api::class, 'division_position_id');
+    }
 }

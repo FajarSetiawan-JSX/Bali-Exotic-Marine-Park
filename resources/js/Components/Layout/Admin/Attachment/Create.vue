@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { eror } from '@/Helper/Toast';
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'success']);
 const props = defineProps(['divisions', 'supervisors'])
 const loading = ref(false);
 const form = ref({
@@ -16,7 +16,8 @@ const err = ref({});
 async function attach() {
     try{
         loading.value = true;
-        const response = await axios.post('/api/priority-first/supervisor', form.value)
+        const response = await axios.post(route('super.admin.supervisor.store'), form.value)
+        emit('success');
     }catch(error){
         if(error?.response?.status == 422){
             err.value = error?.response?.data?.errors;
@@ -38,14 +39,14 @@ console.log(props.divisions)
             <form action="" @submit.prevent="attach" class="grid grid-cols-1 gap-y-2">
                 <div class="w-full">
                     <h1 class="font-second mb-2">Select Supervisor</h1>
-                    <label :for="supervisor.id" v-for="supervisor in props.supervisors" :key="supervisor.id" class="p-3 rounded-lg bg-slate-100 border-1 border-slate-200 flex justify-between items-center font-second">
+                    <label :for="supervisor.id" v-for="supervisor in props.supervisors" :key="supervisor.id" class="p-3 rounded-lg bg-slate-100 border-1 border-slate-200 flex justify-between items-center font-second my-1">
                         <div class="flex items-center justify-start gap-x-2">
                             <div class="relative">
                                 <img src="https://ui-avatars.com/api/?name=S1&background=3567FF&color=FFFFFF" alt="" class="w-10 h-10 rounded-full">
                                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse duration-500 absolute bottom-0 right-0" />
                             </div>
                             <div>
-                                <h1 class="text-sm">{{ supervisor.nama }}</h1>
+                                <h1 class="text-sm">{{ supervisor.name }}</h1>
                                 <h2 class="text-xs">User Level 2</h2>
                             </div>
                         </div>

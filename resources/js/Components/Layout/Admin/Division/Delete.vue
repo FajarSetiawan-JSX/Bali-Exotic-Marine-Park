@@ -14,7 +14,7 @@ const err = ref({});
 async function hapus() {
     try{
         loading.value = true;
-        const response = await axios.delete(`/api/priority-first/division/${props?.division?.id}`);
+        const response = await axios.delete(route('super.admin.position.delete', props?.division?.id));
         emit('success')
     }catch(error){
         eror(error?.response?.status, error?.response?.data?.message);

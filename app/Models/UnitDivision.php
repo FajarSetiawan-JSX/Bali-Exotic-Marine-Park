@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['division_id', 'unit_id', 'name'])]
+#[Fillable(['division_id', 'unit_id'])]
 class UnitDivision extends Model
 {
     public function unit(): BelongsTo
@@ -15,6 +15,6 @@ class UnitDivision extends Model
     }
     public function division(): BelongsTo
     {
-        return $this->belongsTo(UnitDivision::class, 'division_id');
+        return $this->belongsTo(Division::class, 'division_id');
     }
 }

@@ -37,6 +37,10 @@ class Division extends Model
     {
         return $this->hasMany(DivisionWorkTime::class, 'division_id');
     }
+    public function basic(): HasMany
+    {
+        return $this->hasMany(BasicInformation::class, 'division_id');
+    }
 
     //Aksesor
     public function getuser()

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use PhpParser\Node\Expr\Assign;
 
 #[Fillable(['name', 'nik', 'nik_hash', 'username', 'email', 'password', 'status', 'phone', 'phone_hash', 'emergency', 'emergency_hash', 'gender', 'born_at', 'birthday', 'address', 'profile', 'last_activity'])]
 #[Hidden(['password', 'remember_token'])]
@@ -41,6 +42,13 @@ class User extends Authenticatable
         })->value('level');
     }
 
+    public function getunit(): ?string
+    {
+        return Unit::whereHas('division.division.position.user.user', function ($query) {
+            $query->where('id', '=', $this->id);
+        })->value('name');
+    }
+
     public function getdivision(): ?string
     {
         return Division::whereHas('position.user.user', function ($query) {
@@ -53,6 +61,31 @@ class User extends Authenticatable
         return DivisionPosition::whereHas('user.user', function ($query) {
             $query->where('id', '=', $this->id);
         })->pluck('name');
+    }
+
+    public function web()
+    {
+        return Permission_web::whereHas('divisionPosition', function ($query) {
+            $query->whereIn('name', $this->getposition());
+        })->with(['web'])->get();
+    }
+    public function api()
+    {
+        return Permission_api::whereHas('divisionPosition', function ($query) {
+            $query->whereIn('name', $this->getposition());
+        })->with(['api'])->get();
+    }
+    public function getpermissionweb($position)
+    {
+        return Web::whereHas('permissionweb.divisionPosition', function ($query) use ($position) {
+            $query->whereIn('name', $position);
+        })->pluck('route');
+    }
+    public function getpermissionapi($position)
+    {
+        return Api::whereHas('permissionapi.divisionPosition', function ($query) use ($position) {
+            $query->whereIn('name', $position);
+        })->pluck('route');
     }
     //penutup aksesor
 
@@ -67,5 +100,13 @@ class User extends Authenticatable
     public function divisionPosition(): HasMany
     {
         return $this->hasMany(UserDivisionPosition::class, 'user_id');
+    }
+    public function division(): HasMany
+    {
+        return $this->hasMany(AssignSupervisor::class, 'user_id');
+    }
+    public function templete(): HasMany
+    {
+        return $this->hasMany(Templete::class, 'user_id');
     }
 }

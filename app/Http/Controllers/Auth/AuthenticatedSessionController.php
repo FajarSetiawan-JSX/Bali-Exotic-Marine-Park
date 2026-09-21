@@ -33,14 +33,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        return redirect()->route('dashboard');
 
-        return match ($user->getlevel()) {
-            1 => redirect()->route('super.admin.dashboard'),
-            2 => redirect()->route('supervisor.dashboard'),
-            3 => redirect()->route(''),
-            null => redirect()->route('default.dashboard'),
-        };
+        // $user = Auth::user();
+
+        // return match ($user->getlevel()) {
+        //     1 => redirect()->route('super.admin.dashboard'),
+        //     2 => redirect()->route('supervisor.dashboard'),
+        //     3 => redirect()->route('division.dashboard'),
+        //     null => redirect()->route('default.dashboard'),
+        // };
     }
 
     /**

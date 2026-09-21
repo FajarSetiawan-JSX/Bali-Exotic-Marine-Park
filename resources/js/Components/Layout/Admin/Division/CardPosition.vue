@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Crown, MoreVertical, ChessPawn, Pencil, Trash2 } from 'lucide-vue-next'
+import { Crown, MoreVertical, ChessPawn, Pencil, Trash2, Globe, Braces } from 'lucide-vue-next'
+import { Link } from '@inertiajs/vue3';
 
 const emit = defineEmits([ 'update', 'delete'])
 const props = defineProps(['position']);
@@ -43,7 +44,7 @@ onBeforeUnmount(() => {
     <div class="w-full rounded-xl bg-white border border-gray-100 shadow-sm p-4 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start justify-between">
             <div class="flex justify-start items-center gap-x-3">
-                <template v-if="props?.position?.position == 'Head'">
+                <template v-if="props?.position?.position?.name == 'Head'">
                     <div class="p-1.5 rounded-lg bg-red-200 flex items-center justify-center">
                         <Crown :size="30" class="text-red-400"/>
                     </div>
@@ -70,12 +71,22 @@ onBeforeUnmount(() => {
                     leave-from-class="opacity-100 scale-100"
                     leave-to-class="opacity-0 scale-95"
                 >
-                    <div v-if="showMenu" class="absolute right-0 top-9 z-50 w-32 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
+                    <div v-if="showMenu" class="absolute right-0 top-9 z-50 w-52 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
                         <button type="button" @click="handleEdit"
                             class="w-full px-3 py-2.5 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <Pencil :size="15" />
                             <span>Edit</span>
                         </button>
+
+                        <Link :href="route('super.admin.divisionposition.page', props?.position?.slug)" class="w-full px-3 py-2.5 flex items-center gap-2 text-sm text-emerald-500 hover:bg-emerald-50 transition">
+                            <Globe :size="15" />
+                            <span>Access page</span>
+                        </Link>
+
+                        <Link :href="route('super.admin.divisionposition.api', props?.position?.id)" class="w-full px-3 py-2.5 flex items-center gap-2 text-sm text-yellow-500 hover:bg-yellow-50 transition">
+                            <Braces :size="15" />
+                            <span>Access API</span>
+                        </Link>
 
                         <button type="button" @click="handleDelete" class="w-full px-3 py-2.5 flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 transition">
                             <Trash2 :size="15" />

@@ -33,21 +33,18 @@ class HandleInertiaRequests extends Middleware
     {
         //ambil route dashboard dinamis sesuai divisi
         $user = Auth::user();
-        $dashboardroute = null;
         $level = null;
         $division = null;
         $position = null;
+        $web = [];
+        $api = [];
 
         if ($user) {
             $level = $user->getlevel();
             $division = $user->getdivision();
             $position = $user->getposition();
-            $dashboardroute = match ($user->getlevel()) {
-                1 => 'super.admin.dashboard',
-                2 => 'supervisor.dashboard',
-                3 => '',
-                null => 'default.dashboard',
-            };
+            $web = $user->getpermissionweb($position) ?? [];
+            $api = $user->getpermissionapi($position) ?? [];
         }
         return [
             ...parent::share($request),
@@ -56,8 +53,10 @@ class HandleInertiaRequests extends Middleware
                 'level' => $level,
                 'division' => $division,
                 'position' => $position,
+                'web' => $web,
+                'api' => $api,
                 //shere route melalui inertia
-                'dashboard' => $dashboardroute
+                'dashboard' => 'dashboard'
             ],
         ];
     }

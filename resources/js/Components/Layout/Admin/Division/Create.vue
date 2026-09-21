@@ -21,7 +21,7 @@ async function create() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.post('/api/priority-first/division', form.value);
+        const response = await axios.post(route('super.admin.division.store'), form.value);
         emit('success')
     }catch(error){
         if(error?.response?.status == 422){

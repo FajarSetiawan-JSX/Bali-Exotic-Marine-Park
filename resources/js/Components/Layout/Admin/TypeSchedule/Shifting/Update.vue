@@ -22,7 +22,7 @@ async function update() {
     try{
         err.value = {};
         loading.value = true;
-        const response = await axios.patch(`/api/priority-first/Time/${props.time.id}`, form.value);
+        const response = await axios.patch(route('super.admin.time.patch', props?.time?.id), form.value);
         emit('success')
     }catch(error){
         console.log(error?.response);
