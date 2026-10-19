@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('basic_information_id')->constrained(
                 table: 'basic_information', indexName: 'patrols_basic_information_id'
             )->cascadeOnDelete();
+            $table->boolean('approved')->default(false);
             $table->timestamps();
         });
     }

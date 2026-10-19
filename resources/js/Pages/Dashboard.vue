@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import { Bar, Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Users, Flag, UsersRound } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import PaginationNumber from '@/Components/PaginationNumber.vue';
 import LoadingCard from '@/Components/LoadingCard.vue';
@@ -12,12 +12,16 @@ import Card from '@/Components/Layout/Admin/Users/Card.vue';
 import { eror } from '@/Helper/Toast';
 import axios from 'axios';
 import SearchAnimation from '@/Components/SearchAnimation.vue';
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft, ChevronDown, ShieldCheck, Download, CalendarDays, BellOff } from 'lucide-vue-next'
+import SearchLoad from '@/Components/SearchLoad.vue';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
+import { formatDateTime } from '@/Helper/FormatDateTime';
 
 ChartJS.register( BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 const user = usePage().props?.auth;
-const props = defineProps(['datalevel', 'label', 'data', 'user'])
+const props = defineProps(['datalevel', 'label', 'data', 'user', 'divisions', 'notifications'])
 const colors = [
     "#ef4444", // merah
     "#3b82f6", // biru
@@ -97,7 +101,8 @@ const doughnutOptions = {
     }
 }
 
-const search = ref('')
+const search = ref('');
+const filterdivision = ref('');
 const users = ref([]);
 const loading = ref(false);
 const pagination = ref({});
@@ -106,17 +111,26 @@ async function get(page = 1) {
         loading.value = true;
         const response = await axios.get(route('user.index'),{
             params:{
-                page: page
+                page: page,
+                search: search.value,
+                filter: filterdivision.value
             }
         })
-        pagination.value = response?.data?.meta;
-        users.value = response?.data?.data;
+        pagination.value = response?.data?.meta ?? {};
+        users.value = response?.data?.data ?? [];
+        console.log(response?.data?.data);
     }catch(error){
         eror(error?.response?.status, error?.response?.data?.message);
     }finally{
         loading.value = false;
     }
 }
+watch(() => filterdivision.value, (newfilter) => {
+    if(newfilter != ''){
+        return getusers();
+    };
+    return getusers();
+});
 function next(page){
     if(page){
         get(page)
@@ -132,9 +146,11 @@ function prev(page){
         get(page)
     }
 }
+const openId = ref(null);
+const toggle = (id) => openId.value = openId.value === id ? null : id;
 
 onMounted(()=>{
-    if(user?.level == 2){
+    if(user.api.includes('user.index')){
         get();
     }
     setTimeout(() => {
@@ -183,19 +199,15 @@ onMounted(()=>{
 
         <template v-if="user?.level === 1">
             <section class="relative flex items-center h-80 overflow-hidden bg-[#F8FEFF]">
-                <!-- Wave belakang -->
                 <svg data-aos="zoom-in" data-aos-delay="100" data-aos-offset="0"
                     class="absolute bottom-0 w-full opacity-40"
                     viewBox="0 0 1440 320"
                     preserveAspectRatio="none">
-
                     <path
                         fill="#8ADFD8"
                         d="M0,224L80,213.3C160,203,320,181,480,176C640,171,800,181,960,202.7C1120,224,1280,256,1360,272L1440,288L1440,320L0,320Z">
                     </path>
-
                 </svg>
-                <!-- Wave depan -->
                 <svg data-aos="fade-up" data-aos-delay="200" data-aos-offset="0"
                     class="absolute bottom-0 w-full"
                     viewBox="0 0 1440 320"
@@ -287,26 +299,19 @@ onMounted(()=>{
                     </p>
                 </div>
             </section>
-
             <section class="my-5">
                 <div class="bg-white rounded-lg p-3 shadow-lg">
                     <h1 class="font-second text-lg">Users Division</h1>
                     <Bar :data="dataBar" :options="optionsBar" class="max-h-80" />
                 </div>
             </section>
-
             <section class="my-5">
-                <div class="p-3 rounded-lg shadow-sm bg-white flex items-center justify-between">
-                    <div>
-
-                    </div>
-                    <div>
-                        <select name="" id="" class="border-1 border-slate-500 rounded-lg">
-                            <option selected disabled value="">Filter Division</option>
-                        </select>
+                <div class="flex items-center md:justify-between justify-end bg-white p-3 my-5 border-1 border-slate-200">
+                    <SearchLoad v-model="search" class="w-sm hidden md:block" />
+                    <div class="flex items-center justify-start gap-x-2">
+                        <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
                     </div>
                 </div>
-
                 <div class="my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-3 md:gap-5">
                     <template v-if="!loading">
                         <template v-if="users.length > 0">
@@ -322,7 +327,6 @@ onMounted(()=>{
                         <LoadingCard />
                     </template>
                 </div>
-
                 <PaginationNumber :pagination="pagination" :name="'Users'" @next="next" @page="page" @prev="prev" />
             </section>
         </template>
@@ -339,9 +343,153 @@ onMounted(()=>{
                     </p>
                 </div>
             </section>
+            <template v-if="user?.api?.includes('user.index')">
+                <section class="my-5">
+                    <div class="flex items-center md:justify-between justify-end bg-white p-3 my-5 border-1 border-slate-200">
+                        <SearchLoad v-model="search" class="w-sm hidden md:block" />
+                        <div class="flex items-center justify-start gap-x-2">
+                            <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
+                            
+                        </div>
+                    </div>
+
+                    <div class="my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-3 md:gap-5">
+                        <template v-if="!loading">
+                            <template v-if="users.length > 0">
+                                <Card v-for="user in users" :key="user.id" :user="user" />
+                            </template>
+                            <template>
+                                <div class="my-3">
+                                    <h1>0 data users</h1>
+                                </div>
+                            </template>
+                        </template>
+                        <template v-else>
+                            <LoadingCard />
+                        </template>
+                    </div>
+                    <PaginationNumber :pagination="pagination" :name="'Users'" @next="next" @page="page" @prev="prev" />
+                </section>
+            </template>
+            <template v-if="!user?.api?.includes('specific.notification.store')">
+                <section class="my-5 font-second">
+                    <h4 class="text-2xl font-semibold">latest notification</h4>
+                    <p class="text-sm md:text-md text-slate-500">Monitor the latest notifications from division heads, HR Admins, and Super Admins to stay informed about broadcasted information.</p>
+                </section>
+                <div class="w-full space-y-3 font-second">
+                    <template v-if="props?.notifications?.length > 0">
+                        <div v-for="(n, index) in props?.notifications" class="w-full rounded-2xl border border-slate-200 bg-white shadow-sm">
+                            <div class="flex items-center gap-x-3 p-3 md:p-4">
+                                <div class="relative shrink-0">
+                                    <img :src="n?.avatar ? `storage/${n?.avatar}` : `https://ui-avatars.com/api/?background=2DD4BF&color=fff&name=${n?.name}`" alt="" class="rounded-full size-10 md:size-12 object-cover">
+                                    <span class="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-emerald-500"></span>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <h3 class="text-sm font-bold text-slate-900">{{ n?.name }}</h3>
+                                        <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ n?.position }}</span>
+                                        <span class="hidden md:inline text-xs text-slate-400">• 10 mnt lalu</span>
+                                    </div>
+                                    <span class="hidden md:flex items-center gap-x-1 rounded-md bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 max-w-max my-1"><ShieldCheck class="size-3.5" />{{ n?.division }}</span>
+                                </div>
+                                <button type="button" @click="toggle(index)" class="flex shrink-0 items-center gap-x-1.5 rounded-xl bg-slate-100 p-2 md:px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                                    <span class="hidden md:inline">{{ openId === index ? 'Minimize' : 'Maximize' }}</span>
+                                    <ChevronDown class="size-4 md:size-5 transition-transform duration-300" :class="openId === index && 'rotate-180'" />
+                                </button>
+                            </div>
+                            <transition enter-active-class="transition-all duration-300 ease-out overflow-hidden" enter-from-class="max-h-0 opacity-0" enter-to-class="max-h-[600px] opacity-100" leave-active-class="transition-all duration-200 ease-in overflow-hidden" leave-from-class="max-h-[600px] opacity-100" leave-to-class="max-h-0 opacity-0">
+                                <div v-if="openId === index">
+                                    <div class="space-y-3 border-t border-slate-200 p-3 md:p-4">
+                                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-1 text-xs text-slate-500">
+                                            <p>Detail Notification</p>
+                                        </div>
+                                        <p class="text-sm leading-relaxed text-slate-700">{{ n?.notification }}</p>
+                                        <template v-if="n?.img">
+                                            <p class="pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Photo</p>
+                                            <div class="flex max-w-max items-center gap-x-3 rounded-xl border border-slate-200 p-2.5 mx-auto">
+                                                <img :src="`storage/${n?.img}`" alt="" class="size-60 md:size-96 shrink-0 rounded-lg object-cover">
+                                            </div>
+                                        </template>
+                                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-3 border-t border-slate-200 pt-3">
+                                            <p class="text-xs text-slate-500 flex items-center justify-start gap-x-2.5"><CalendarDays size="17" />{{ formatDateTime(n?.date) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <h1 class="text-md text-slate-500 flex items-center justify-center gap-x-2"><BellOff size="15" />No notification available</h1>
+                    </template>
+                </div>
+            </template>
         </template>
         <template v-else>
 
         </template>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+/* Container utama */
+:deep(.division-select) {
+    width: auto;
+    min-width: 180px;
+}
+
+/* Tombol select */
+:deep(.division-select .vs__dropdown-toggle) {
+    background-color: var(--color-primary-admin, #f8fafc);
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0.5rem 1rem;
+}
+
+/* Input search */
+:deep(.division-select .vs__search) {
+    margin: 0;
+    padding: 0;
+}
+
+/* Hilangkan aneh-aneh */
+:deep(.division-select .vs__selected-options) {
+    padding: 0;
+}
+
+/* Panah */
+:deep(.division-select .vs__actions) {
+    padding-left: 8px;
+}
+
+:deep(.division-select .vs__open-indicator) {
+    fill: #6b7280;
+}
+
+/* Dropdown */
+:deep(.division-select .vs__dropdown-menu) {
+    width: 100% !important;
+    min-width: 100% !important;
+
+    left: 0;
+    margin-top: 6px;
+
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 15px rgb(0 0 0 / 0.1);
+}
+
+/* Item */
+:deep(.division-select .vs__dropdown-option) {
+    padding: 10px 16px;
+}
+
+:deep(.division-select .vs__dropdown-option--highlight) {
+    background: #f3f4f6;
+    color: #111827;
+}
+</style>

@@ -16,7 +16,11 @@ return new class extends Migration
             $table->foreignId('patrol_area_section_question_id')->constrained(
                 table: 'patrol_area_section_questions',
                 indexName: 'answer_checklits_patrol_area_section_question_id'
-            )->cascadeOnDelete();
+            )->cascadeOnDelete()->nullable();
+            $table->foreignId('patrol_question_id')->constrained(
+                table: 'patrol_questions',
+                indexName: 'answer_checklits_patrol_question_id'
+            )->cascadeOnDelete()->nullable();
             $table->boolean('answer');
             $table->timestamps();
         });

@@ -28,6 +28,14 @@ return new class extends Migration
             $table->string('gender')->nullable();
             $table->string('born_at')->nullable();
             $table->date('birthday')->nullable();
+            $table->enum('religion', ['Islam', 'Kristen', 'Katholik', 'Hindu', 'Buddha', 'Konghucu', 'Other'])->nullable();
+            $table->enum('status_tk', ['TK/O', 'K/0', 'K/1', 'K/2'])->nullable();
+            $table->string('rekening')->nullable()->unique();
+            $table->string('rekening_hash', 64)->nullable()->unique();
+            $table->string('bpjs_kes')->nullable()->unique();
+            $table->string('bpjs_kes_hash', 64)->nullable()->unique();
+            $table->string('bpjs_tk')->nullable()->unique();
+            $table->string('bpjs_tk_hash', 64)->nullable()->unique();
             $table->text('address')->nullable();
             $table->text('profile')->nullable();
             $table->timestamp('last_activity')->nullable();

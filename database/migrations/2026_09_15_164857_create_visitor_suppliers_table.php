@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('visitor_suppliers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('visitor_id')->constrained(
-                table: 'visitors', indexName: 'visitor_suppliers_visitor_id'
+                table: 'visitors',
+                indexName: 'visitor_suppliers_visitor_id'
             )->cascadeOnDelete();
-            $table->foreignId('supplier_id')->constrained(
-                table: 'suppliers', indexName: 'visitor_suppliers_visitor_supplier_id'
+            $table->foreignId('supplier_id')->nullable()->constrained(
+                table: 'suppliers',
+                indexName: 'visitor_suppliers_visitor_supplier_id'
             );
             $table->timestamps();
         });

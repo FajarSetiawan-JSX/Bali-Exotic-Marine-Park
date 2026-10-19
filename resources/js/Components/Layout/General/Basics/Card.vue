@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Clock3, User, MapPin, X, AlertTriangle, Check, 
 import { ref } from 'vue';
 import { formatTime } from '@/Helper/FormatTime';
 import { formatDateTime } from '@/Helper/FormatDateTime';
+import Menu from '@/Components/Menu.vue';
 
 const props = defineProps(['basic']);
 const isOpen = ref(false);
@@ -182,10 +183,10 @@ const isOpen = ref(false);
                 </div>
                 <div class="flex flex-col gap-2 border-t border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <p class="text-xs font-primary text-slate-500">{{ formatDateTime(props?.basic?.tanggal) }}</p>
-                    <button type="button" class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-50">
+                    <Menu :href="route('daily.basic.detail', props?.basic?.id)" class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 active:scale-95 transition-all duration-300">
                         <Eye :size="12" />
                         View Progress
-                    </button>
+                    </Menu>
                 </div>
             </div>
         </Transition>

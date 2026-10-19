@@ -19,4 +19,8 @@ class Visitor extends Model
     {
         return $this->hasOne(VisitorSupplier::class, 'visitor_id');
     }
+    public function booking(): HasOne
+    {
+        return $this->hasOne(VisitorBooking::class, 'visitor_id');
+    }
 }

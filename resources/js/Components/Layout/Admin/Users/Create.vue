@@ -23,7 +23,9 @@ const form = ref({
     city: '',
     address: '',
     division: '',
-    position: []
+    position: '',
+    religion: '',
+    tk: ''
 });
 function reset(){
     form.value.name = '';
@@ -37,7 +39,9 @@ function reset(){
     form.value.city = '';
     form.value.address = '';
     form.value.division = '';
-    form.value.position = [];
+    form.value.position = '';
+    form.value.religion = '';
+    form.value.tk = '';
 }
 const selecteddivision = computed(() => {
     return props.divisions.find(division => division.id === Number(form.value.division)) ?? null;
@@ -124,7 +128,36 @@ onMounted(()=>{
                         <p v-if="err?.emergency" class="text-xs font-second text-red-800">{{ err?.emergency[0] }}</p>
                     </div>
 
-                    <div data-aos="zoom-in" data-aos-delay="1100" data-aos-offset="0" class="grid grid-cols-1 gap-2 col-span-2">
+                    <div data-aos="fade-left" data-aos-delay="1100" data-aos-offset="0">
+                        <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
+                            <label for="religion" class="text-lg text-white italic">Religion</label>
+                            <select name="" id="religion" v-model="form.religion" class="rounded-lg">
+                                <option disabled selected value="">Select Religion</option>
+                                <option value="Islam" class="text-black">Islam</option>
+                                <option value="Kristen" class="text-black">Christian</option>
+                                <option value="Katholik" class="text-black">Chatolic</option>
+                                <option value="Hindu" class="text-black">Hindu</option>
+                                <option value="Buddha" class="text-black">Buddha</option>
+                                <option value="Konghucu" class="text-black">Konghucu</option>
+                                <option value="Other" class="text-black">Other</option>
+                            </select>
+                        </div>
+                        <p v-if="err?.religion" class="text-xs font-second text-red-800">{{ err?.religion[0] }}</p>
+                    </div>
+
+                    <div data-aos="fade-right" data-aos-delay="1100" data-aos-offset="0">
+                        <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
+                            <label for="tk" class="text-lg text-white italic">Status TK</label>
+                            <select name="" id="tk" v-model="form.tk" class="rounded-lg">
+                                <option disabled selected value="">Select TK Status</option>
+                                <option value="TK/O" class="text-black">TK/O</option>
+                                <option value="K1" class="text-black">K1</option>
+                            </select>
+                        </div>
+                        <p v-if="err?.tk" class="text-xs font-second text-red-800">{{ err?.tk[0] }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2 col-span-2">
                         <label for="" class="text-lg text-white italic">Gender</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label for="male" class="text-white/70">
@@ -140,7 +173,7 @@ onMounted(()=>{
                         <p v-if="err?.gender" class="text-xs font-second text-red-800">{{ err?.gender[0] }}</p>
                     </div>
 
-                    <div data-aos="fade-left" data-aos-delay="1300" data-aos-offset="0">
+                    <div>
                         <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
                             <label for="birthday" class="text-lg text-white italic">Date of birthday</label>
                             <input type="date" v-model="form.birthday" id="birthday" class="px-4 py-2 rounded-lg border border-cyan-400 bg-white/50 backdrop-blur-sm text-black outline-none transition-all duration-300 focus:border-cyan-400 focus:shadow-[0_0_5px_#22d3ee,0_0_10px_#22d3ee,0_0_20px_#22d3ee]">
@@ -148,7 +181,7 @@ onMounted(()=>{
                         <p v-if="err?.birthday" class="text-xs font-second text-red-800">{{ err?.birthday[0] }}</p>
                     </div>
 
-                    <div data-aos="fade-right" data-aos-delay="1300" data-aos-offset="0">
+                    <div>
                         <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
                             <label for="city" class="text-lg text-white italic">City of birth</label>
                             <input type="text" v-model="form.city" id="city" class="px-4 py-2 rounded-lg border border-cyan-400 bg-white/50 backdrop-blur-sm text-black outline-none transition-all duration-300 focus:border-cyan-400 focus:shadow-[0_0_5px_#22d3ee,0_0_10px_#22d3ee,0_0_20px_#22d3ee]">
@@ -167,12 +200,12 @@ onMounted(()=>{
                         <p v-if="err?.division" class="text-xs font-second text-red-800">{{ err?.division[0] }}</p>
                     </div>
 
-                    <div class="col-span-2">
+                    <div v-if="selecteddivision" class="col-span-2">
                         <div class="max-h-max grid grid-cols-1 gap-2 mb-1.5">
                             <label class="text-lg text-white italic">Position<span class="text-red-400">*</span></label>
                             <div v-if="selecteddivision?.position?.length > 0" class="grid grid-cols-2 lg:grid-cols-3 gap-2">
                                 <label v-for="position in selecteddivision?.position" :key="position.id" :for="position?.id" class="text-white font-second text-sm capitalize">
-                                    <input type="checkbox" :id="position?.id" :value="position?.id" v-model="form.position" class="rounded-sm">
+                                    <input type="radio" :id="position?.id" :value="position?.id" v-model="form.position" class="rounded-sm">
                                     {{ position?.name }}
                                 </label>
                             </div>

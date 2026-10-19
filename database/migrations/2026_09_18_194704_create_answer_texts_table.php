@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('answer_texts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patrol_area_section_question_id')->constrained(
+            $table->foreignId('patrol_area_section_question_id')->nullable()->constrained(
                 table: 'patrol_area_section_questions',
                 indexName: 'answer_texts_patrol_area_section_question_id'
+            )->cascadeOnDelete();
+            $table->foreignId('patrol_question_id')->nullable()->constrained(
+                table: 'patrol_questions',
+                indexName: 'answer_texts_patrol_question_id'
             )->cascadeOnDelete();
             $table->string('answer');
             $table->text('img')->nullable();

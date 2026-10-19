@@ -23,10 +23,9 @@ async function create() {
         loading.value = true;
         const response = await axios.post(route('specific.basics.information.daily.create'), form.value);
         console.log(response?.data?.data);
-        emit('success')
+        emit('success', response?.data?.data)
     }catch(error){
         eror(error?.response?.status, error?.response?.data?.message);
-        console.log(error?.response?.data);
     }finally{
         loading.value = false;
     }

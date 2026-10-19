@@ -41,6 +41,10 @@ class Division extends Model
     {
         return $this->hasMany(BasicInformation::class, 'division_id');
     }
+    public function question(): HasMany
+    {
+        return $this->hasMany(Question::class, 'division_id');
+    }
 
     //Aksesor
     public function getuser()

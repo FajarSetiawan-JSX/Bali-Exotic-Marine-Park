@@ -91,7 +91,7 @@ onMounted(() => {
                     <select
                         v-model="form.area"
                         @change="selectArea"
-                        class="w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-gray-800 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400 sm:text-base"
+                        class="w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-gray-800 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400 sm:text-sm"
                     >
                         <option value="" disabled>Select Area</option>
 
@@ -237,7 +237,7 @@ onMounted(() => {
                         
                         <template v-else>
                             <div class="">
-                                <textarea name="" id="" class="mt-1.5 rounded-lg ring-slate-500"></textarea>
+                                <textarea name="" id="" class="mt-1.5 rounded-lg ring-slate-500 w-full focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400"></textarea>
                             </div>
                         </template>
                     </div>
@@ -263,11 +263,7 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        @click="create"
-                        class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700"
-                    >
+                    <button type="button" @click="create" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700">
                         <Send class="h-4 w-4" />
                         Submit Section
                     </button>

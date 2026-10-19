@@ -6,20 +6,25 @@ import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import { eror } from '@/Helper/Toast';
 const emit = defineEmits(['close', 'success']);
-const props = defineProps(['id']);
+const props = defineProps(['months']);
 const show = ref(false);
 const loading = ref(false);
 
+const month = ref('');
 const err = ref({});
 async function hapus() {
-    try{
-        loading.value = true;
-        const response = await axios.delete(route('specific.months.delete', props?.id));
-        emit('success')
-    }catch(error){
-        eror(error?.response?.status, error?.response?.data?.message);
-    }finally{
-        loading.value = false;
+    if(month.value != ''){
+        try{
+            loading.value = true;
+            const response = await axios.delete(route('specific.months.delete', month?.value));
+            emit('success')
+        }catch(error){
+            eror(error?.response?.status, error?.response?.data?.message);
+        }finally{
+            loading.value = false;
+        }
+    }else{
+        eror('Failed Delete', 'Month is required');
     }
 }
 onMounted(()=>{
@@ -36,6 +41,13 @@ onMounted(()=>{
             <h1 data-aos="fade-up" data-aos-delay="500" class="text-white font-second text-lg text-center">Delete Schedule</h1>
             <p data-aos="fade-down" data-aos-delay="500" class="text-center text-sm text-white/80">Deleting all dates for the month means deleting all scheduled events and requests for schedule changes.</p>
             <form action="" @submit.prevent="hapus" class="font-second text-black my-2">
+                <div>
+                    <label data-aos="zoom-in" data-aos-delay="500" for="month" class="text-white block">Select Month</label>
+                    <select v-model="month" data-aos="zoom-in" data-aos-delay="600" name="" id="month" class="w-full rounded-lg bg-slate-100">
+                        <option value="" selected disabled class="text-white">Select Month</option>
+                        <option v-for="m in props?.months" :value="m?.id">{{ m?.month }}</option>
+                    </select>
+                </div>
                 <Transition name="zoom">
                     <button v-if="show" type="submit" :disabled="loading" :class="loading ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-red-600 transition-all duration-500'" class="py-1.5 my-4 rounded-lg bg-red-500 w-full text-white active:scale-95 flex items-center justify-center gap-x-0.5">
                         <template v-if="!loading">

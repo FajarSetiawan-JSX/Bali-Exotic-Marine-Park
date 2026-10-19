@@ -25,7 +25,9 @@ return new class extends Migration
                 table: 'templetes',
                 indexName: 'basic_informations_templete_id'
             )->cascadeOnDelete();
-            $table->boolean('handover');
+            $table->boolean('handover')->default(false);
+            $table->boolean('done')->default(false);
+            $table->boolean('approved')->default(false);
             $table->timestamps();
         });
     }

@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Api;
 use App\Models\Area;
+use App\Models\BookingMethode;
 use App\Models\Division;
 use App\Models\DivisionPosition;
 use App\Models\ForgetPassword;
 use App\Models\Level;
 use App\Models\Month;
 use App\Models\Position;
+use App\Models\Program;
+use App\Models\Question;
+use App\Models\Section;
 use App\Models\Supplier;
 use App\Models\Time;
 use App\Models\Unit;
@@ -179,7 +183,40 @@ class RoutingController extends Controller
 
     public function question()
     {
-        //$total = Supplier::count();
-        return Inertia::render('Question');
+        $total = Question::count();
+        $checklist = Question::where('type', '=', 'Checklist')->count();
+        $text = $total - $checklist;
+        $divisions = Division::all();
+        $section = Section::all();
+        return Inertia::render('Question', ['total' => $total, 'normal' => $checklist, 'incident' => $text, 'divisions' => $divisions, 'sections' => $section]);
+    }
+
+    public function methode()
+    {
+        $total = BookingMethode::count();
+        return Inertia::render('Methode', ['total' => $total]);
+    }
+
+    public function contract()
+    {
+        return Inertia::render('Contract');
+    }
+    public function program()
+    {
+        $total = Program::count();
+        return Inertia::render('Program', ['total' => $total]);
+    }
+    public function programavailable()
+    {
+        $programs = Program::all();
+        return Inertia::render('ProgramBooking', ['programs' => $programs]);
+    }
+
+    public function pool(){
+        return Inertia::render('Pool');
+    }
+
+    public function mamal(){
+        return Inertia::render('Mamal');
     }
 }

@@ -6,19 +6,23 @@ import { onMounted, ref, watch } from 'vue';
 import { eror, succes } from '@/Helper/Toast';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
-import { Plus, Trash, SquarePen } from 'lucide-vue-next';
-import Card from '@/Components/Layout/Admin/Api/Card.vue';
-import LoadingPrimary from '@/Components/Layout/LoadingPrimary.vue';
+import { ArrowLeft, Plus } from 'lucide-vue-next'
 import PaginationNumber from '@/Components/PaginationNumber.vue';
-import { onBeforeUnmount } from 'vue';
-import Create from '@/Components/Layout/Admin/Area/Create.vue';
-import Update from '@/Components/Layout/Admin/Area/Update.vue';
-import Delete from '@/Components/Layout/Admin/Area/Delete.vue';
+import Card from '@/Components/Layout/Admin/Question/Card.vue';
+import Empty from '@/Components/Empty.vue';
+import LoadingCard from '@/Components/LoadingCard.vue';
+import Create from '@/Components/Layout/Admin/Question/Create.vue';
+import Update from '@/Components/Layout/Admin/Question/Update.vue';
+import Delete from '@/Components/Layout/Admin/Question/Delete.vue';
+import { useCounter } from '@/Helper/counter';
 
 const user = usePage().props?.auth;
-const props = defineProps(['total']);
+const props = defineProps(['total', 'normal', 'incident', 'divisions', 'sections']);
+const counttotal = useCounter();
+const countnormal = useCounter();
+const countincident = useCounter();
 const search = ref('');
-const openMenu = ref(null);
+const option = ref('');
 const modalcreate = ref(false);
 const modalupdate = ref(false);
 const modaldelete = ref(false);
@@ -32,7 +36,8 @@ async function get(page = 1) {
         const response = await axios.get(route('super.admin.question.index'), {
             params: {
                 page: page,
-                search: search.value
+                search: search.value,
+                option: option.value
             }
         });
         questions.value = response.data.data ?? [];
@@ -67,19 +72,17 @@ watch(()=>search.value, ($newsearch)=>{
         }, 1000);
     }
 },{ immediate: true });
-function toggleMenu(id) {
-    openMenu.value = openMenu.value === id ? null : id;
-}
-function closeMenu() {
-    openMenu.value = null;
-}
-const handleClickOutside = () => {
-    closeMenu()
-}
+watch(()=>option.value, ($newop)=>{
+    if($newop){
+        setTimeout(() => {
+            get()
+        }, 1000);
+    }
+},{ immediate: true });
 function handlesuccesscreate(data){
     modalcreate.value = false;
-    areas.value.unshift(data);
-    succes('Success', 'Success created new area');
+    questions.value.unshift(data);
+    succes('Success', 'Success created new question');
 }
 function handleopenupdate(data){
     modalupdate.value = true;
@@ -88,7 +91,7 @@ function handleopenupdate(data){
 function handlesuccessupdate(){
     modalupdate.value = false;
     record.value = {};
-    succes('Success', 'Success update area');
+    succes('Success', 'Success update question');
     get();
 }
 
@@ -103,7 +106,7 @@ function handleopendelete(data){
 function handlesuccessdelete(){
     modaldelete.value = false;
     record.value = {};
-    succes('Success', 'Success deleted area');
+    succes('Success', 'Success deleted question');
     get();
 }
 function handleclosedelete(){
@@ -111,11 +114,10 @@ function handleclosedelete(){
     record.value = {};
 }
 onMounted(()=>{
-    //get();
-    document.addEventListener('click', handleClickOutside)
-})
-onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside)
+    get()
+    counttotal.start(props?.total);
+    countnormal.start(props?.normal);
+    countincident.start(props?.incident);
 })
 </script>
 
@@ -126,53 +128,59 @@ onBeforeUnmount(() => {
             <h1 class="font-semibold">Question</h1>
         </template>
 
-        <!-- <section class="relative overflow-hidden rounded-2xl border border-slate-300/50 bg-gradient-to-br from-[#071b35] via-[#0b416d] to-[#159bd1] px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.18)] sm:px-6 sm:py-6 lg:px-7 lg:py-6">
-            <div class="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl"/>
-            <div class="pointer-events-none absolute -bottom-20 left-1/3 h-40 w-40 rounded-full bg-blue-400/10 blur-3xl"/>
-            <div class="relative z-10">
-                <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                    <div class="min-w-0">
-                        <div class="mb-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] text-cyan-200 sm:text-[10px]">
-                            <span class="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)]"/>
-                            Zone & Facility Infrastructure
-                        </div>
-                        <h1 class="text-xl font-extrabold tracking-tight text-white sm:text-2xl lg:text-3xl">
-                            Area & Zone Management
-                        </h1>
-                        <p class="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-sm">
-                            Kelola pemetaan area konservasi, zona interaksi publik,
-                            wahana bahari, serta sarana & fasilitas operasional
-                            Bali Exotic Marine Park.
-                        </p>
-                        <div class="mt-4 flex flex-wrap gap-2 sm:gap-2.5">
-                            <div class="flex min-w-sm items-center gap-2 rounded-lg border border-white/10 bg-white/[0.07] px-3 py-2 backdrop-blur-sm">
-                                <div class="flex h-10 w-1 items-center justify-center rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]"/>
-                                <div>
-                                    <p class="text-sm font-bold leading-none text-white">
-                                        {{ props?.total }}
-                                    </p>
-                                    <p class="mt-1 text-sm font-medium tracking-wide text-slate-400 sm:text-sm">
-                                        Total Area
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+        <section>
+            <div class="relative overflow-hidden rounded-2xl p-6 font-second" style="background:linear-gradient(135deg,#0C0C2B 0%,#1E1B4B 50%,#0A2540 100%)">
+                <div class="absolute -right-16 -top-16 h-72 w-72 rounded-full border border-white/10"/>
+                <div class="absolute right-10 -top-5 h-40 w-40 rounded-full border border-violet-500/20"/>
+                <div class="absolute right-24 -bottom-10 h-52 w-52 rounded-full" style="background:radial-gradient(circle,rgba(99,102,241,.12),transparent 70%)"/>
+                <div class="relative flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300">
+                            <span class="size-1.5 rounded-full bg-indigo-400"></span>MANAGEMENT QUESTION
+                        </span>
+                        <h2 class="mt-3 text-md font-bold text-white sm:text-lg md:text-2xl lg:text-3xl">Bank Question</h2>
+                        <p class="mt-1 max-w-xl text-xs text-slate-400 sm:text-sm md:text-md">Manage the master question repository, categorization of the mammal attraction division, testing specifications, and curation of standard operational evaluations for BEMP.</p>
                     </div>
-                    <div class="flex shrink-0 items-center gap-2 lg:pt-9">
-                        <button type="button" @click="modalcreate = true" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-slate-700 shadow-lg shadow-black/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0 sm:h-11 sm:px-5">
-                            <Plus :size="14" :stroke-width="2.5"/>
-                            <span class="text-sm">
-                                Add new area
-                            </span>
+                    <div class="flex gap-2">
+                        <button type="button" @click="modalcreate = true" class="flex items-center gap-2 rounded-lg bg-sky-900 px-4 py-2 text-xs font-medium text-white hover:bg-sky-950 sm:text-sm transition-all duration-300 active:scale-95">
+                            <Plus class="size-4" />
+                            Add New Question
                         </button>
+                    </div>
+                </div>
+
+                <div class="relative mt-6 border-t border-white/10 pt-5">
+                    <div class="grid grid-cols-2 gap-y-5 sm:grid-cols-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-semibold text-white">{{ counttotal.count }}</span>
+                            </div>
+                            <p class="mt-1 text-xs text-indigo-300">Total Question</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-bold text-white">{{ countnormal.count }}</span>
+                                <span class="rounded bg-sky-500/15 px-1.5 py-0.5 text-xs font-medium text-sky-400">/ {{ props?.total }}</span>
+                            </div>
+                            <p class="mt-1 text-xs text-indigo-300">Checklist Question</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-semibold text-white">{{ countincident.count }}</span>
+                                <span class="rounded bg-emerald-500/15 px-1.5 py-0.5 text-xs font-medium text-emerald-400">/ {{ props?.total }}</span>
+                            </div>
+                            <p class="mt-1 text-xs text-indigo-300">Text Question</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="my-3.5 relative overflow-visible">
-            <div class="flex items-center justify-between flex-wrap bg-white p-3 rounded-t-lg">
-                <div class="flex items-center justify-start gap-x-3">
+        <section>
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 bg-white p-3 my-5 border-1 border-slate-200">
+                <div>
                     <SearchAnimation placeholder="Search name" v-model="search">
                         <template #search>
                             <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,75 +193,40 @@ onBeforeUnmount(() => {
                         </template>
                     </SearchAnimation>
                 </div>
+                <div class="flex gap-x-2 items-center justify-end">
+                    <select name="" id="" v-model="option" class="gap-x-1.5 rounded-lg border-slate-300">
+                        <option disabled selected value="">Filter Option</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Incident">Incident</option>
+                    </select>
+                </div>
             </div>
-            <div class="overflow-x-scroll bg-white mb-4">
-                <table class="w-full text-sm text-left text-gray-500">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-4 py-4">No</th>
-                            <th scope="col" class="px-4 py-3">Area</th>
-                            <th scope="col" class="px-4 py-3">Description</th>
-                            <th scope="col" class="px-4 py-3">
-                                <span class="sr-only">Actions</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template v-if="loading">
-                            <tr>
-                                <td colspan="7">
-                                    <div class="my-5">
-                                        <LoadingPrimary />
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                        <template v-else>
-                            <template v-if="areas.length > 0">
-                                <tr v-for="(area, index) in areas" :key="area?.id" class="border-b">
-                                    <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{{ (pagination.current_page - 1) * pagination.per_page + index + 1 }}</th>
-                                    <td class="px-4 py-3">{{ area?.name }}</td>
-                                    <td class="px-4 py-3">{{ area?.description }}</td>
-                                    <td class="px-4 py-3 flex items-center justify-end relative">
-                                        <button @click.stop="toggleMenu(area?.id)" class="inline-flex items-center text-sm font-medium hover:bg-gray-100 p-1.5 text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none" type="button">
-                                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                            </svg>
-                                        </button>
-                                        <div v-if="openMenu === area?.id" @click.stop class="absolute right-13 bottom-0  z-[99] w-44 bg-white rounded divide-y divide-gray-100 shadow">
-                                            <ul class="py-1 text-sm">
-                                                <li>
-                                                    <button @click="handleopenupdate(area)" type="button" class="flex w-full items-center gap-x-2 py-2 px-4 text-gray-700 hover:bg-yellow-50">
-                                                        <SquarePen size="15" class="text-yellow-500" />
-                                                        Update
-                                                    </button>
-                                                </li>
-                                                <li>
-                                                    <button @click="handleopendelete(area)" type="button" class="flex w-full items-center gap-x-2 py-2 px-4 text-gray-700 hover:bg-red-50">
-                                                        <Trash size="15" class="text-red-500" />
-                                                        Delete
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                            <template v-else>
-                                <tr>
-                                    <td colspan="4">
-                                        <p class="text-center font-primary tex-md text-red-500">No question available</p>
-                                    </td>
-                                </tr>
-                            </template>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </section> -->
+        </section>
+
+        <section class="my-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <template v-if="loading">
+                <LoadingCard />
+                <LoadingCard />
+                <LoadingCard />
+            </template>
+            <template v-else>
+                <template v-if="questions.length > 0">
+                    <Card v-for="(question, index) in questions" :key="question?.id" :question="question" :number="((pagination.current_page - 1) * pagination.per_page) + index + 1" @edit="handleopenupdate" @hapus="handleopendelete" />
+                </template>
+                <template v-else>
+                    <div class="md:col-span-2 xl:col-span-3">
+                        <Empty title="No Question Yet" description="You haven't created any questions yet." sub-description="Get started by creating your first question." primary-text="Create Question" @primary="modalcreate = true"/>
+                    </div>
+                </template>
+            </template>
+        </section>
 
         <section class="mt-6">
             <PaginationNumber :pagination="pagination" :name="'Questions'" @next="next" @page="page" @prev="prev" />
         </section>
+
+        <Create v-if="modalcreate" @close="modalcreate = false" @success="handlesuccesscreate" :divisions="props?.divisions" :sections="props?.sections" />
+        <Update v-if="modalupdate" @close="handlecloseupdate" @success="handlesuccessupdate" :question="record" :divisions="props?.divisions" :sections="props?.sections" />
+        <Delete v-if="modaldelete" @close="handleclosedelete" @success="handlesuccessdelete" :question="record" />
     </AuthenticatedLayout>
 </template>

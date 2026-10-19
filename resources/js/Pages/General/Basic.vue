@@ -11,40 +11,27 @@ import Card from '@/Components/Layout/General/Basics/Card.vue';
 import Create from '@/Components/Layout/General/Basics/Create.vue';
 import PaginationNumber from '@/Components/PaginationNumber.vue';
 import LoadingPrimary from '@/Components/Layout/LoadingPrimary.vue';
+import { useCounter } from '@/Helper/counter';
 
 const user = usePage().props?.auth;
-const props = defineProps(['templets']);
+const props = defineProps(['templets', 'total']);
+const count = useCounter();
 const modalcreate = ref(false);
 const basics = ref([]);
 const loading = ref(false);
 const pagination = ref({});
-const filters = [
-    {
-        value: 'all',
-        label: 'All Shifts',
-    },
-    {
-        value: 'morning',
-        label: 'Pagi (Morning)',
-    },
-    {
-        value: 'night',
-        label: 'Malam (Night)',
-    },
-]
+
 async function get(page = 1) {
     try{
         loading.value = true;
-        const response = await axios.get(route('general.basics.information.daily'), {
+        const response = await axios.get(route('specific.basics.information.daily'), {
             params: {
                 page: page
             }
         });
         basics.value = response?.data?.data ?? [];
         pagination.value = response?.data?.meta ?? {};
-        console.log(response?.data);
     }catch(error){
-        console.log(error?.response?.data);
         eror(error?.response?.status, error?.response?.statusText);
     }finally{
         loading.value = false;
@@ -65,11 +52,13 @@ function prev(page){
         get(page)
     }
 }
-function handlesuccesscreate (){
+function handlesuccesscreate (data){
+    basics.value.unshift(data);
     modalcreate.value = false;
     succes('Success', 'Success create new basic information');
 }
 onMounted(()=>{
+    count.start(props?.total);
     get()
 })
 </script>
@@ -117,7 +106,7 @@ onMounted(()=>{
                         <div class="flex shrink-0 gap-2 sm:gap-3">
                             <div class="min-w-24 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
                                 <div class="text-xl font-bold leading-none text-white sm:text-2xl">
-                                    1
+                                    {{ count.count }}
                                 </div>
 
                                 <div class="mt-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
@@ -138,7 +127,7 @@ onMounted(()=>{
                     <div class="relative mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 md:flex-row md:items-center md:justify-between">
                         <div class="relative w-full md:max-w-xs">
                             <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
-                            <input type="text" placeholder="Search area, officer, issue..." class="h-9 w-full rounded-lg border border-white/10 bg-white/10 pl-9 pr-3 text-xs text-white outline-none placeholder:text-slate-400 transition focus:border-cyan-400/50 focus:bg-white/15"/>
+                            <input type="text" placeholder="Search name or date" class="h-9 w-full rounded-lg border border-white/10 bg-white/10 pl-9 pr-3 text-xs text-white outline-none placeholder:text-slate-400 transition focus:border-cyan-400/50 focus:bg-white/15"/>
                         </div>
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between md:justify-end">
                             <span class="text-sm font-semibold text-slate-300">
@@ -146,8 +135,8 @@ onMounted(()=>{
                             </span>
 
                             <div class="flex flex-wrap gap-1.5">
-                                <button v-for="filter in filters" :key="filter.value" type="button" @click="selectedFilter = filter.value" class="rounded-md border px-3 py-1.5 text-[10px] font-medium transition" :class=" selectedFilter === filter.value ? 'border-cyan-400/30 bg-cyan-400 text-slate-900' : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'">
-                                    {{ filter.label }}
+                                <button v-for="templete in props?.templets" :key="templete?.id" type="button" @click="selectedFilter = templete?.id" class="rounded-md border px-3 py-1.5 text-[10px] font-medium transition" :class=" selectedFilter === templete?.id ? 'border-cyan-400/30 bg-cyan-400 text-slate-900' : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'">
+                                    {{ templete?.name }}
                                 </button>
                             </div>
                         </div>

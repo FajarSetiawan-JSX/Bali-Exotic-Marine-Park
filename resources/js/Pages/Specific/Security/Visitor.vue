@@ -179,21 +179,37 @@ onMounted(()=>{
             </div>
         </section>
 
-        <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 my-5">
-            <div class="flex flex-col justify-between gap-3 xl:flex-row xl:items-center">
-                <div class="relative w-full xl:max-w-sm">
-                    <Search :size="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
-                    <input v-model="search" type="text" placeholder="Search by visitor name" class="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:bg-white focus:ring-2 focus:ring-cyan-100"/>
+        <section>
+            <div class="flex items-center justify-between flex-wrap gap-3 bg-white p-3 rounded-t-lg my-3">
+                <div class="flex items-center justify-start gap-x-3">
+                    <SearchAnimation placeholder="Search name" v-model="search">
+                        <template #search>
+                            <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 17L22 22M19.5 10.75C19.5 15.5825 15.5825 19.5 10.75 19.5C5.91751 19.5 2 15.5825 2 10.75C2 5.91751 5.91751 2 10.75 2C15.5825 2 19.5 5.91751 19.5 10.75Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </template>
+
+                        <template #back>
+                            <ArrowLeft :size="18"/>
+                        </template>
+                    </SearchAnimation>
                 </div>
-                <button type="button" @click="modalcreate = true" class="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 text-sm font-bold text-white shadow-sm shadow-cyan-500/20 transition hover:from-cyan-600 hover:to-blue-700 active:scale-[0.98]">
-                    <Plus :size="17" />
-                    <span>
-                        Create New Visitor Report
-                    </span>
-                </button>
+                <form action="" @submit.prevent="filter" class="flex items-center justify-start gap-2 flex-wrap font-second">
+                    <input type="date" name="" v-model="from" id="" class="rounded-lg border-2 border-slate-300 focus:border-sky-500 focus:ring-sky-300">
+                    <span>-</span>
+                    <input type="date" name="" v-model="to" id="" class="rounded-lg border-2 border-slate-300 focus:border-sky-500 focus:ring-sky-300">
+                    <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-1 text-white shadow-md transition-all duration-300 active:scale-95">
+                        <Funnel size="15" />
+                        Filter
+                    </button>
+                    <button type="button" @click="clear" class="flex items-center justify-center gap-2 rounded-xl bg-slate-500 px-5 py-1 text-white shadow-md transition-all duration-300 active:scale-95">
+                        <RotateCcw size="15" />
+                        Reset
+                    </button>
+                </form>
             </div>
         </section>
-
+        
         <section>
             <template v-if="loading">
                 <div class="my-6">

@@ -17,6 +17,7 @@ import SearchLoad from '@/Components/SearchLoad.vue';
 import Card from '@/Components/Layout/Admin/Users/Card.vue';
 import LoadingCard from '@/Components/LoadingCard.vue';
 import Update from '@/Components/Layout/Admin/Users/Update.vue';
+import SelectDownload from '@/Components/Layout/Admin/Users/SelectDownload.vue';
 
 const props = defineProps(['divisions', 'users', 'online', 'positions']);
 const filterdivision = ref('');
@@ -84,10 +85,10 @@ async function getusers(page = 1) {
                 filter: filterdivision.value
             }
         });
-        datas.value = response?.data?.data;
-        pagination.value = response?.data?.meta;
+        datas.value = response?.data?.data ?? [];
+        pagination.value = response?.data?.meta ?? {};
+        console.log(datas.value);
     }catch(error){
-        console.log(error?.response);
         eror(error?.response?.status, error?.response?.data?.message);
     }finally{
         loading.value = false;
@@ -158,7 +159,6 @@ watch(() => search.value, (newfilter) => {
 onMounted(async () => {
     const backgroundColor = props.divisions.map(() => colors[Math.floor(Math.random() * colors.length)])
     getusers();
-    console.log(props.divisions);
     setTimeout(() => {
     chartData.value = {
       labels: props?.divisions?.map((division) => division.nama),
@@ -252,7 +252,10 @@ onMounted(async () => {
 
         <div class="lg:mx-5 flex items-center md:justify-between justify-end bg-white p-3 my-5 border-1 border-slate-200">
             <SearchLoad v-model="search" class="w-sm hidden md:block" />
-            <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
+            <div class="flex items-center justify-start gap-x-2">
+                <vSelect v-model="filterdivision" :options="props.divisions" label="nama" class="division-select" placeholder="All Division" />
+                <SelectDownload />
+            </div>
         </div>
         <template v-if="!loading">
             <template v-if="datas.length > 0">

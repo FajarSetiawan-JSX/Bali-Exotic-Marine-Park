@@ -18,6 +18,8 @@ const isImage = ref(false);
 const reasons = [
     'sakit',
     'izin',
+    'cuti',
+    'off tanpa izin'
 ];
 
 const form = ref({

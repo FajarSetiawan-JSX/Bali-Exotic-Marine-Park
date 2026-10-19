@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('division_id')->constrained(
+                table: 'divisions',
+                indexName: 'questions_division_id'
+            );
             $table->text('question');
-            $table->enum('type', ['Checklist', 'Text']);
-            $table->enum('option', ['Normal', 'Incident']);
+            $table->enum('type', ['Checklist', 'Text', 'Upload']);
+            $table->enum('case', ['Normal', 'Incident']);
             $table->string('part')->nullable();
-            $table->boolean('trigger')->default(false);
             $table->timestamps();
         });
     }

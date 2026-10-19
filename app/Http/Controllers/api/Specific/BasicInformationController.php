@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\api\General;
+namespace App\Http\Controllers\api\Specific;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\General\GetBasicResource;
+use App\Http\Resources\General\GetBasicInformationResource;
+use App\Http\Resources\General\GetBasicInformationsResource;
 use App\Models\AssignSupervisor;
 use App\Models\BasicInformation;
 use App\Models\Date;
@@ -16,26 +17,24 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class DailyController extends Controller
+class BasicInformationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         $basics = BasicInformation::orderBy('created_at', 'desc');
         $user = Auth::user();
         if ($user->getlevel() == 2) {
             $divisionsID = AssignSupervisor::where('id', '=', $user->id)->pluck('division_id');
             $basics->whereIn('division_id', $divisionsID);
-        } elseif ($user->getlevel() == 3) {
+        } else {
             $templets = Templete::where('user_id', '=', $user->id)->pluck('id');
             $basics = $basics->whereIn('templete_id', $templets);
-        } else {
-            # code...
         }
         $basics = $basics->with(['date', 'division', 'templete.user', 'templete.templetetime.time', 'additional', 'visitor', 'patrol'])->paginate(10)->withQueryString();
-        return GetBasicResource::collection($basics);
+        return GetBasicInformationsResource::collection($basics);
     }
 
     /**
@@ -57,6 +56,9 @@ class DailyController extends Controller
         $user = Auth::user();
         $division = Division::where('name', '=', $user->getdivision())->first();
         $date = Date::where('date', '=', now()->format('Y-m-d'))->first();
+        if (!$date) {
+            return response()->json(['message' => 'No Schedule available'], 409);
+        }
         $cek = BasicInformation::where('date_id', '=', $date->id)->where('templete_id', '=', $valid['templete'])->where('division_id', '=', $division->id);
         if ($cek->exists()) {
             return response()->json(['message' => 'Basic Information today is already exist'], 409);
@@ -73,16 +75,17 @@ class DailyController extends Controller
                     'detail' => $valid['detail']
                 ]);
             }
+            $basic->load(['date', 'division', 'templete.user', 'templete.templetetime.time', 'additional', 'visitor', 'patrol']);
             $user->log()->create([
                 'log' => $user->name .  ' Create new basic information at ' . $date->date
             ]);
             DB::commit();
-            return response()->json(['message' => 'Success create new basic information']);
+            return new GetBasicInformationResource($basic);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error([
                 'title' => 'Create new abasic information',
-                'file' => 'Controller : api/General/DailyController.php',
+                'file' => 'Controller : api/Specific/BasicInformationController.php',
                 'pesan' => $e->getMessage(),
                 'baris' => $e->getLine()
             ]);
@@ -104,6 +107,18 @@ class DailyController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    public function done($id)
+    {
+        $basic = BasicInformation::where('id', '=', $id)->first();
+        if (!$basic) {
+            return response()->json(['message' => 'Basic Information not found'], 404);
+        }
+        $basic->update([
+            'done' => true
+        ]);
+        return response()->json(['message', 'Success']);
     }
 
     /**

@@ -21,9 +21,12 @@ class MonthController extends Controller
      */
     public function index(Request $request)
     {
-        $monthnow = now()->format('Y-m');
-        $month = Month::where('month', '=', $monthnow)->with(['date.schedule', 'date.schedule.templete.divisionworktime.division'])->firstOrFail();
+        $month = Month::with(['date.schedule', 'date.schedule.templete.divisionworktime.division']);
         if ($request->filled('search')) {
+            $month = $month->where('id', '=', $request->search)->firstOrFail();
+        } else {
+            $monthnow = now()->format('Y-m');
+            $month = $month->where('month', '=', $monthnow)->firstOrFail();
         }
         return new GetMonthResource($month);
     }

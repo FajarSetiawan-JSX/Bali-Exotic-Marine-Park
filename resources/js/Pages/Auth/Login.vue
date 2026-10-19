@@ -64,7 +64,7 @@ function handleemailclose(){
             </div>
             <div class="my-5">
                 <h2 data-aos="fade-up" data-aos-anchor-placement="bottom-bottom" class="text-2xl md:text-4xl font-title font-bold">Welcome</h2>
-                <p data-aos="fade-down" data-aos-anchor-placement="bottom-bottom" class="my-3 font-second text-slate-500 text-sm">Sign in to BEMP Management with your account.</p>
+                <p data-aos="fade-down" data-aos-anchor-placement="bottom-bottom" class="my-3 font-second text-slate-500 text-sm">Sign in to <span class="text-slate-700">#LifewithExotic</span> with your account.</p>
             </div>
             <div class=" md:mt-24">
                 <form @submit.prevent="submit">

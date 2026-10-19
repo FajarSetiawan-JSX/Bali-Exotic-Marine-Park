@@ -8,7 +8,7 @@ import { onMounted } from 'vue';
 import LoadingPrimary from '@/Components/Layout/LoadingPrimary.vue';
 
 const emit = defineEmits(['close', 'success']);
-const props = defineProps(['schedule']);
+const props = defineProps(['basic', 'suppliers', 'bookings']);
 const loading = ref(false);
 const fileInput = ref(null);
 const fileName = ref('');
@@ -16,9 +16,9 @@ const previewUrl = ref('');
 const isImage = ref(false);
 
 const form = ref({
+    basic: props?.basic,
     name: '',
     type: '',
-    date: '',
     time: '',
     information: '',
     total: '',
@@ -47,28 +47,29 @@ async function create() {
         err.value = {};
         loading.value = true;
         const data = new FormData();
+        data.append('basic', form.value.basic);
         data.append('name', form.value.name);
         data.append('type', form.value.type);
-        data.append('date', form.value.date);
         data.append('time', form.value.time);
         data.append('total', form.value.total);
         data.append('information', form.value.information);
         if (form.value.img) {
             data.append('img', form.value.img);
         }
-        await axios.post(route('specific.security.visitor.store'), data);
+        const response = await axios.post(route('specific.security.delivery.store'), data);
+        console.log(response.data)
         emit('success', form.value.type);
     } catch (error) {
+        console.log(error?.response);
         if (error?.response?.status == 422) {
             err.value = error?.response?.data?.errors;
         }
-        eror(error?.response?.status, error?.response?.data?.message);
+        eror(error?.response?.status, error?.response?.statusText);
     } finally {
         loading.value = false;
     }
 }
 onMounted(()=>{
-    console.log(props?.schedule)
 })
 </script>
 
@@ -87,20 +88,20 @@ onMounted(()=>{
 
             <form @submit.prevent="create" class="flex flex-col">
                 <div class="space-y-4 px-5 md:px-6 py-5 max-h-80 overflow-y-scroll">
-                    <div>
-                        <label class="mb-1.5 block text-xs md:text-sm font-medium text-slate-700">
-                            Name
-                        </label>
-                        <input type="text" name="" id="" v-model="form.name" class="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm md:text-base text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                        <p v-if="err?.name" class="mt-1 text-xs text-red-500">{{ err.name[0] }}</p>
-                    </div>
                     <div class="grid grid-cols-2 gap-3 mt-1.5">
                         <div>
                             <label class="block text-xs md:text-sm font-medium text-slate-700">
-                                Date
+                                Select category
                             </label>
-                            <input type="date" name="" id="" v-model="form.date" class="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm md:text-base text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <p v-if="err?.date" class="mt-1 text-xs text-red-500">{{ err.date[0] }}</p>
+                            <select v-model="form.type" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm md:text-base text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="" disabled selected>Select category</option>
+                                <option value="supplier">Supplier</option>
+                                <option value="vendor">Vendor</option>
+                                <option value="guest">Guest</option>
+                                <option value="guide">Guide</option>
+                                <option value="personal">Personal</option>
+                            </select>
+                            <p v-if="err?.reason" class="mt-1 text-xs text-red-500">{{ err.reason[0] }}</p>
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm font-medium text-slate-700">
@@ -111,19 +112,27 @@ onMounted(()=>{
                         </div>
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-xs md:text-sm font-medium text-slate-700">
-                            Select category
+                        <label for="name" class="mb-1.5 block text-xs md:text-sm font-medium text-slate-700">
+                            Name
                         </label>
-                        <select v-model="form.type" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm md:text-base text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <option value="" disabled selected>Select category</option>
-                            <option value="supplier">Supplier</option>
-                            <option value="vendor">Vendor</option>
-                            <option value="guest">Guest</option>
-                            <option value="guide">Guide</option>
-                            <option value="personal">Personal</option>
-                        </select>
-                        <p v-if="err?.reason" class="mt-1 text-xs text-red-500">{{ err.reason[0] }}</p>
+                        <template v-if="form.type == 'supplier'">
+                            <select name="" id="name" v-model="form.name" class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                <option selected disabled value="">Select Supplier Name</option>
+                                <option :value="supplier?.id" v-for="supplier in props?.suppliers">{{ supplier?.name }}</option>
+                            </select>
+                        </template>
+                        <template v-else-if="form.type == 'guest'">
+                            <select name="" id="name" v-model="form.name" class="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                <option selected disabled value="">Select Guest Name</option>
+                                <option :value="booking?.id" v-for="booking in props?.bookings">{{ booking?.name }}</option>
+                            </select>
+                        </template>
+                        <template v-else>
+                            <input type="text" name="" id="" v-model="form.name" class="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm md:text-base text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </template>
+                        <p v-if="err?.name" class="mt-1 text-xs text-red-500">{{ err.name[0] }}</p>
                     </div>
+                    
                     <div v-if="form.type == 'guest'">
                         <label class="mb-1.5 block text-xs md:text-sm font-medium text-slate-700">
                             Total

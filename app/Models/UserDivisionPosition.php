@@ -18,4 +18,8 @@ class UserDivisionPosition extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function notification(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'user_division_position_id');
+    }
 }

@@ -64,9 +64,7 @@ class DailySecurityRoutingController extends Controller
             return [
                 'id' => $area->id,
                 'name' => $area->name,
-                'areaSection' => $area->section->filter(function ($s) {
-                    return $s->section->name != 'Incident / Problem Report';
-                })->map(function ($section) {
+                'areaSection' => $area->section->map(function ($section) {
                     return [
                         'area_section_id' => $section->id,
                         'name' => $section->section->name,
@@ -76,9 +74,7 @@ class DailySecurityRoutingController extends Controller
                                 'id' => $question->id,
                                 'question' => $question->question->question,
                                 'type' => $question->question->type,
-                                'option' => $question->question->option,
-                                'part' => $question->question->part,
-                                'trigger' => $question->question->trigger
+                                'part' => $question->question->part
                             ];
                         })->values()->toArray()
                     ];
@@ -86,5 +82,10 @@ class DailySecurityRoutingController extends Controller
             ];
         });
         return Inertia::render('Specific/Security/PatrolCreate', ['areas' => $results]);
+    }
+
+    public function deliveries()
+    {
+        return Inertia::render('Specific/Security/Delivery');
     }
 }

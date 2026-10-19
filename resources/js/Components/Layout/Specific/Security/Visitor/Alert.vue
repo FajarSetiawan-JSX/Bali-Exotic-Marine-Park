@@ -5,7 +5,7 @@ import { onMounted } from 'vue';
 const emit = defineEmits(['close']);
 const props = defineProps(['tipe']);
 onMounted(()=>{
-    console.log(props?.schedule)
+    console.log(props?.tipe)
 })
 </script>
 

@@ -2,7 +2,7 @@
 import SearchAnimation from '@/Components/SearchAnimation.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { ArrowLeft, Trash2, FileDown, CalendarFold, ChevronDown, Undo2, CalendarDays, Sparkles, Plus } from 'lucide-vue-next';
 import { eror, succes } from '@/Helper/Toast';
 import axios from 'axios';
@@ -29,13 +29,14 @@ const modalcreate = ref(false);
 const modaldelete = ref(false);
 const modaldownload = ref(false);
 const modalabsen = ref(false);
-const form = ref({
-    month: ''
-})
 async function get() {
     try{
         loading.value = true;
-        const response = await axios.get(route('general.months.schedule'));
+        const response = await axios.get(route('general.months.schedule'), {
+            params: {
+                search: search.value
+            }
+        });
         month.value = response?.data?.data;
         dates.value = response?.data?.data?.date ?? [];
         console.log(month.value);
@@ -89,14 +90,20 @@ function handlesuccescreate(data){
 function handlesuccesdelete(){
     succes('Success', 'successfully deleted the monthly schedule');
     modaldelete.value = false;
-    get()
+    window.location.reload();
 }
 function handlesuccesabsen(){
     succes('Success', 'successfully create submission');
     modalabsen.value = false;
     get()
 }
+watch(()=>search.value, (newsearch)=>{
+    setTimeout(() => {
+        get();
+    }, 1000);
+},{immediate:true})
 onMounted(()=>{
+    console.log(props?.months);
     get()
 })
 </script>
@@ -106,19 +113,6 @@ onMounted(()=>{
     <AuthenticatedLayout>
         <template #header>
             <h1 class="font-semibold">Schedule</h1>
-        </template>
-        <template #search>
-            <SearchAnimation placeholder="Search name" v-model="search">
-                <template #search>
-                    <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 17L22 22M19.5 10.75C19.5 15.5825 15.5825 19.5 10.75 19.5C5.91751 19.5 2 15.5825 2 10.75C2 5.91751 5.91751 2 10.75 2C15.5825 2 19.5 5.91751 19.5 10.75Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </template>
-
-                <template #back>
-                    <ArrowLeft :size="18"/>
-                </template>
-            </SearchAnimation>
         </template>
         <section v-if="user?.level == 1" class="p-5 bg-white rounded-2xl shadow-sm w-full grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div class="font-second">
@@ -167,9 +161,9 @@ onMounted(()=>{
                     <p class="text-sm text-slate-300">Detailed and complete schedule for the current month</p>
                 </div>
                 <div class="flex items-center justify-end gap-x-2">
-                    <select name="" id="" v-model="form.month" class="flex rounded-lg">
+                    <select name="" id="" v-model="search" class="flex rounded-lg">
                         <option value="">Filter Month</option>
-                        <option :value="month" v-for="month in props?.months" :key="month?.id">{{ month?.month }}</option>
+                        <option :value="month?.id" v-for="month in props?.months" :key="month?.id">{{ month?.month }}</option>
                     </select>
                     <template v-if="user?.api.includes('specific.months.generate')">
                         <button type="button" @click="opendownload" class="flex items-center justify-center gap-x-2 max-w-max py-1.5 px-3 rounded-lg text-slate-800 bg-white hover:bg-white/90 active:scale-95 transition-all duration-300">
@@ -289,7 +283,7 @@ onMounted(()=>{
         </section>
 
         <Generate v-if="modalcreate" @close="modalcreate = false" @success="handlesuccescreate" />
-        <Delete v-if="modaldelete" @close="modaldelete = false" @success="handlesuccesdelete" :id="month?.id" />
+        <Delete v-if="modaldelete" @close="modaldelete = false" @success="handlesuccesdelete" :months="props?.months" />
         <Download v-if="modaldownload" @close="modaldownload = false" :month="form.month" />
         <Absen v-if="modalabsen" @close="modalabsen = false" @success="handlesuccesabsen" :schedule="record" />
     </AuthenticatedLayout>

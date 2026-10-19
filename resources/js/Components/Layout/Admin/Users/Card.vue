@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { MoreVertical, Pencil, Trash2, Info, Globe, FileStack } from 'lucide-vue-next'
-import { timeNow } from '@/Helper/DateNow'
+import { MoreVertical, Pencil, Trash2, Info, Globe, FileStack, ReceiptText } from 'lucide-vue-next'
+import { formatDate } from '@/Helper/FormatDate'
 import { computed } from 'vue'
 import { eror, succes } from '@/Helper/Toast'
 import axios from 'axios';
@@ -19,15 +19,15 @@ const showMenu = ref(false);
 const menu = ref(null);
 const loading = ref(false);
 const active = computed({
-    get: () => props.user.status === 1,
+    get: () => props.user.status === true,
     set: (value) => {
-        props.user.status = value ? 1 : 0;
+        props.user.status = value ? true : false;
     }
 });
 async function toggle() {
     try{
         loading.value = true;
-        const response = await axios.patch(('super.admin.user.status', props?.user?.id), {
+        const response = await axios.patch(route('super.admin.user.status', props?.user?.id), {
             status: active.value
         })
         succes('Success',response?.data?.message);
@@ -69,9 +69,9 @@ onUnmounted(() => {
                     <h2 class="text-xl font-semibold text-slate-800">
                         {{ props?.user?.name }}
                     </h2>
-                    <template v-if="props?.user?.position?.length > 0">
-                        <span v-for="position in props?.user?.position" class="mt-1 inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 mx-3">
-                            {{ position }}
+                    <template v-if="props?.user?.position">
+                        <span class="mt-1 inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+                            {{ props?.user?.position }}
                         </span>
                     </template>
                 </div>
@@ -86,6 +86,10 @@ onUnmounted(() => {
                         <Link :href="route('user.detail', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-emerald-500 hover:bg-emerald-50">
                             <Info :size="16"/>
                             Detail
+                        </Link>
+                        <Link :href="route('user.contract', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-sky-500 hover:bg-sky-50">
+                            <ReceiptText :size="16"/>
+                            Contract
                         </Link>
                         <template v-if="user?.level == 1">
                             <Link :href="route('super.admin.user.access', props?.user?.id)" class="flex w-full items-center gap-3 px-4 py-3 text-sm text-yellow-500 hover:bg-yellow-50">
@@ -127,13 +131,13 @@ onUnmounted(() => {
                 Joined
             </span>
             <span class="text-right font-medium">
-                {{ timeNow(props?.user?.join) }}
+                {{ formatDate(props?.user?.join) }}
             </span>
         </div>
         <hr class="my-6">
         <!-- Footer -->
         <div class="flex items-center justify-between">
-            <span :class="props.user.status ? 'text-emerald-600' : 'text-red-500'" class="font-medium ">
+            <span :class="props?.user?.status ? 'text-emerald-600' : 'text-red-500'" class="font-medium ">
                 {{ props?.user?.status == 1 ? 'Active' : 'Non active' }}
             </span>
             <template v-if="user?.level == 1">

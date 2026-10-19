@@ -31,7 +31,7 @@ class SecurityVisitorController extends Controller
                 $query->where('id', '=', $user->id);
             });
         }
-        $visitor = $visitor->with(['basicinformation.date', 'basicinformation.templete.user','supplier.supplier'])->paginate(5)->withQueryString();
+        $visitor = $visitor->with(['basicinformation.date', 'basicinformation.templete.user', 'supplier.supplier'])->paginate(5)->withQueryString();
         return GetVisitorResource::collection($visitor);
     }
 
@@ -41,9 +41,9 @@ class SecurityVisitorController extends Controller
     public function store(Request $request)
     {
         $valid = Validator::make($request->all(), [
+            'basic' => 'required|exists:basic_information,id',
             'name' => 'required|string',
             'type' => 'required',
-            'date' => 'required|date',
             'time' => 'required|date_format:H:i',
             'total' => 'nullable|numeric',
             'information' => 'nullable|string',
@@ -51,35 +51,21 @@ class SecurityVisitorController extends Controller
         ], [
             'required' => ':attribute is required.',
             'string' => ':attribute must be a string.',
-            'date' => ':attribute must be a valid date.',
             'date_format' => ':attribute must be in the format HH:mm.',
             'numeric' => ':attribute must be a number.',
             'file' => ':attribute must be a valid file.',
             'mimes' => ':attribute must be a file of type: :values.',
             'max' => ':attribute may not be greater than :max kilobytes.',
         ])->validate();
-        $date = Date::where('date', '=', $valid['date']);
-        if (!$date->exists()) {
-            return response()->json(['message' => 'The schedule for' . $valid['date'] . 'is not yet available.'], 409);
-        }
-        $date = $date->first();
         $user = Auth::user();
-        $basics = BasicInformation::where('date_id', '=', $date->id)->whereHas('division', function ($quey) use ($user) {
-            $quey->where('name', '=', $user->getdivision());
-        })->whereHas('templete.user', function ($q) use ($user) {
-            $q->where('id', '=', $user->id);
-        });
-        if (!$basics->exists()) {
-            return response()->json(['message' => 'Create Basic information first!'], 409);
-        }
         DB::beginTransaction();
         try {
-            $basics = $basics->orderBy('created_at', 'desc')->first();
             $path = null;
             if ($request->hasFile('img')) {
                 $path = $request->file('img')->store('visitor', 'public');
             }
-            $visitor = $basics->visitor()->create([
+            Visitor::create([
+                'basic_information_id' => $valid['basic'],
                 'name' => $valid['name'],
                 'category' => $valid['type'],
                 'time' => $valid['time'],
@@ -88,14 +74,14 @@ class SecurityVisitorController extends Controller
                 'img' => $path
             ]);
             $user->log()->create([
-                'log' => 'create new daily visitor report at ' . $date->date . ' - ' . $valid['time']
+                'log' => 'create new daily visitor report at ' . $valid['time']
             ]);
             DB::commit();
-            return response()->json(['data' => $visitor]);
+            return response()->json(['message' => 'Successs']);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error([
-                'title' => 'Create new schedule',
+                'title' => 'Create new visitor',
                 'file' => 'Controller : api/Specific/SecurityVisitorController.php',
                 'pesan' => $e->getMessage(),
                 'baris' => $e->getLine()

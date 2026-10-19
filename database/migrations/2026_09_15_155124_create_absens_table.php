@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('absens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('schedule_id')->constrained(
-                table: 'schedules', indexName: 'absens_schedule_id'
+                table: 'schedules',
+                indexName: 'absens_schedule_id'
             );
-            $table->enum('reason',['sakit', 'izin']);
+            $table->enum('reason', ['sakit', 'izin', 'cuti', 'off tanpa izin']);
             $table->text('information', 255)->nullable();
             $table->text('img')->nullable();
             $table->timestamps();
